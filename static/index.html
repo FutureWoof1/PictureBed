@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的甜蜜时光 💕</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="hearts-background"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <h1 class="nav-title">💑 我们的爱情故事</h1>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">首页</a>
+                <a href="#timeline" class="nav-link">时光轴</a>
+                <a href="#memories" class="nav-link">甜蜜日常</a>
+                <a href="#anniversaries" class="nav-link">纪念日</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主页横幅 -->
+    <section id="home" class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">我们的甜蜜时光</h1>
+            <p class="hero-subtitle">记录每一个温暖的瞬间 ❤️</p>
+            <div class="love-counter">
+                <div class="counter-item">
+                    <span class="counter-number" id="days">0</span>
+                    <span class="counter-label">天</span>
+                </div>
+                <div class="counter-item">
+                    <span class="counter-number" id="hours">0</span>
+                    <span class="counter-label">小时</span>
+                </div>
+                <div class="counter-item">
+                    <span class="counter-number" id="minutes">0</span>
+                    <span class="counter-label">分钟</span>
+                </div>
+                <div class="counter-item">
+                    <span class="counter-number" id="seconds">0</span>
+                    <span class="counter-label">秒</span>
+                </div>
+            </div>
+            <p class="love-date">我们在一起的时间（从2022年10月15日开始）</p>
+        </div>
+    </section>
+
+    <!-- 时光轴 -->
+    <section id="timeline" class="section">
+        <div class="container">
+            <h2 class="section-title">💖 我们的时光轴</h2>
+            <p class="section-subtitle">根据甜蜜日常和纪念日自动生成的时间线</p>
+            <div class="timeline" id="timelineContainer"></div>
+        </div>
+    </section>
+
+    <!-- 甜蜜日常 -->
+    <section id="memories" class="section bg-pink">
+        <div class="container">
+            <h2 class="section-title">💝 甜蜜日常</h2>
+            <div class="memories-grid" id="memoriesGrid"></div>
+            <button class="add-btn" id="addMemoryBtn">
+                <i class="fas fa-heart"></i> 记录甜蜜瞬间
+            </button>
+        </div>
+    </section>
+
+    <!-- 重要纪念日 -->
+    <section id="anniversaries" class="section">
+        <div class="container">
+            <h2 class="section-title">🎉 重要纪念日</h2>
+            <div class="anniversaries-grid" id="anniversariesGrid"></div>
+            <button class="add-btn" id="addAnniversaryBtn">
+                <i class="fas fa-calendar-plus"></i> 添加纪念日
+            </button>
+        </div>
+    </section>
+
+    <!-- 模态框 - 添加甜蜜日常 -->
+    <div class="modal" id="memoryModal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="memoryModal">&times;</span>
+            <h3 class="modal-title">记录甜蜜瞬间</h3>
+            <form id="memoryForm">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="memoryDate" required>
+                </div>
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="memoryTitle" placeholder="今天做了什么..." required>
+                </div>
+                <div class="form-group">
+                    <label>内容</label>
+                    <textarea id="memoryContent" placeholder="记录今天的甜蜜..." rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>心情</label>
+                    <select id="memoryMood" required>
+                        <option value="😊">😊 开心</option>
+                        <option value="😍">😍 甜蜜</option>
+                        <option value="🥰">🥰 幸福</option>
+                        <option value="😘">😘 浪漫</option>
+                        <option value="🤗">🤗 温暖</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>照片（可选，可多选）</label>
+                    <input type="file" id="memoryPhotos" accept="image/*" multiple class="file-input">
+                    <div id="memoryPhotoPreview" class="photo-preview-container"></div>
+                </div>
+                <button type="submit" class="submit-btn" id="memorySubmitBtn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 模态框 - 添加纪念日 -->
+    <div class="modal" id="anniversaryModal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="anniversaryModal">&times;</span>
+            <h3 class="modal-title">添加纪念日</h3>
+            <form id="anniversaryForm">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="anniversaryDate" required>
+                </div>
+                <div class="form-group">
+                    <label>纪念日名称</label>
+                    <input type="text" id="anniversaryName" placeholder="例如：恋爱纪念日" required>
+                </div>
+                <div class="form-group">
+                    <label>图标</label>
+                    <select id="anniversaryIcon" required>
+                        <option value="💕">💕 爱心</option>
+                        <option value="🎂">🎂 生日</option>
+                        <option value="💍">💍 订婚</option>
+                        <option value="💐">💐 鲜花</option>
+                        <option value="🎁">🎁 礼物</option>
+                        <option value="✈️">✈️ 旅行</option>
+                        <option value="🏠">🏠 同居</option>
+                        <option value="👶">👶 宝宝</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="anniversaryDesc" placeholder="这个日子的意义..." rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>照片（可选，可多选）</label>
+                    <input type="file" id="anniversaryPhotos" accept="image/*" multiple class="file-input">
+                    <div id="anniversaryPhotoPreview" class="photo-preview-container"></div>
+                </div>
+                <button type="submit" class="submit-btn" id="anniversarySubmitBtn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 照片查看器 -->
+    <div class="photo-viewer" id="photoViewer">
+        <span class="viewer-close">&times;</span>
+        <img src="" alt="" id="viewerImage">
+        <p class="viewer-caption" id="viewerCaption"></p>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>愿我们的爱情永远甜蜜 💖</p>
+        <p>由 <a href="https://with.woa.com/" style="color: #8A2BE2;" target="_blank">With</a> 通过自然语言生成</p>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
