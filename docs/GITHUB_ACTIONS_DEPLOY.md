@@ -25,8 +25,8 @@
 | `OSS_ACCESS_KEY_ID` | AccessKey ID | `LTAI5t...` |
 | `OSS_ACCESS_KEY_SECRET` | AccessKey Secret | `QQ3I15...` |
 | `OSS_BUCKET` | Bucket 名称 | `picturebed0928` |
-| `OSS_UPLOAD_DIR` | 上传目录（可选） | `sweet-album/` |
-| `OSS_DATA_FILE` | 数据文件路径（可选） | `sweet-album/data.json` |
+| `OSS_UPLOAD_DIR` | 上传目录（可选） | `PictureBed/` |
+| `OSS_DATA_FILE` | 数据文件路径（可选） | `PictureBed/data.json` |
 | `LOVE_START_DATE` | 恋爱开始日期（可选） | `2022-10-15` |
 
 ---
@@ -72,12 +72,12 @@ Secret: 你的 Bucket 名称
 
 ```
 Name: OSS_UPLOAD_DIR
-Secret: sweet-album/
+Secret: PictureBed/
 ```
 
 ```
 Name: OSS_DATA_FILE
-Secret: sweet-album/data.json
+Secret: PictureBed/data.json
 ```
 
 ```
@@ -211,7 +211,7 @@ console.log(OSS_CONFIG);
            "oss:DeleteObject"
          ],
          "Resource": [
-           "acs:oss:*:*:你的bucket名称/sweet-album/*"
+           "acs:oss:*:*:你的bucket名称/PictureBed/*"
          ]
        }
      ]

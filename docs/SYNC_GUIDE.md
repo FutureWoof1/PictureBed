@@ -26,8 +26,8 @@ const OSS_CONFIG = {
     accessKeyId: 'YOUR_ACCESS_KEY_ID',  // 你的 AccessKey ID
     accessKeySecret: 'YOUR_ACCESS_KEY_SECRET', // 你的 AccessKey Secret
     bucket: 'YOUR_BUCKET_NAME',         // 你的 Bucket 名称
-    uploadDir: 'sweet-album/',          // 图片上传目录
-    dataFile: 'sweet-album/data.json'   // 数据文件路径（用于多端同步）
+    uploadDir: 'PictureBed/',          // 图片上传目录
+    dataFile: 'PictureBed/data.json'   // 数据文件路径（用于多端同步）
 };
 ```
 
@@ -52,7 +52,7 @@ const OSS_CONFIG = {
 
 但为了简化使用，你也可以：
 - 将 Bucket 设置为「公共读」
-- 或者配置 Bucket Policy 允许读取 `sweet-album/` 目录
+- 或者配置 Bucket Policy 允许读取 `PictureBed/` 目录
 
 ---
 
@@ -188,13 +188,13 @@ const OSS_CONFIG = {
 
 ### 云端存储（OSS）
 
-- 数据文件：`sweet-album/data.json`
+- 数据文件：`PictureBed/data.json`
 - 包含所有甜蜜日常和纪念日数据
 - 永久保存，不会丢失
 
 ### 图片存储（OSS）
 
-- 存储路径：`sweet-album/图片文件名`
+- 存储路径：`PictureBed/图片文件名`
 - 每张图片独立存储
 - 通过 URL 引用
 

@@ -18,8 +18,8 @@ const OSS_CONFIG = {
     accessKeyId: 'YOUR_ACCESS_KEY_ID',
     accessKeySecret: 'YOUR_ACCESS_KEY_SECRET',
     bucket: 'YOUR_BUCKET_NAME',
-    uploadDir: 'sweet-album/',
-    dataFile: 'sweet-album/data.json'
+    uploadDir: 'PictureBed/',
+    dataFile: 'PictureBed/data.json'
 };
 
 const LOVE_START_DATE = '2022-10-15';
@@ -63,7 +63,7 @@ const LOVE_START_DATE = '2022-10-15';
       "Effect": "Allow",
       "Principal": ["*"],
       "Action": ["oss:GetObject"],
-      "Resource": ["acs:oss:*:*:你的bucket名称/sweet-album/*"]
+      "Resource": ["acs:oss:*:*:你的bucket名称/PictureBed/*"]
     }
   ]
 }

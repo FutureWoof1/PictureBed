@@ -10,6 +10,7 @@
 config.js
 config.public.js
 secrets.txt
+test.html
 # 注意：config.public.js 会由 GitHub Actions 自动生成，不需要提交
 
 # 日志文件

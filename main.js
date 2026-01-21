@@ -6,8 +6,8 @@ const CONFIG = {
         accessKeyId: '',
         accessKeySecret: '',
         bucket: '',
-        uploadDir: 'sweet-album/',
-        dataFile: 'sweet-album/data.json'  // 数据文件路径
+        uploadDir: 'PictureBed/',
+        dataFile: 'PictureBed/data.json'  // 数据文件路径
     },
     // 恋爱开始日期
     startDate: '2022-10-15'
@@ -952,7 +952,7 @@ class App {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `sweet-album-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `PictureBed-backup-${new Date().toISOString().split('T')[0]}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
             });

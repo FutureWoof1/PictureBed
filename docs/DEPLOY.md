@@ -15,14 +15,14 @@
 git init
 git add .
 git commit -m "Initial commit"
-git remote add origin https://github.com/你的用户名/sweet-album.git
+git remote add origin https://github.com/你的用户名/PictureBed.git
 git push -u origin main
 
 # 2. 在 GitHub 仓库设置中启用 Pages
 # Settings → Pages → Source: main branch → / (root)
 ```
 
-访问地址：`https://你的用户名.github.io/sweet-album/`
+访问地址：`https://你的用户名.github.io/PictureBed/`
 
 详细步骤请查看 [STATIC_DEPLOY.md](STATIC_DEPLOY.md)
 
@@ -79,7 +79,7 @@ window.APP_CONFIG = {
     OSS_BUCKET: 'your-bucket-name',
     OSS_ACCESS_KEY_ID: 'your-access-key-id',
     OSS_ACCESS_KEY_SECRET: 'your-access-key-secret',
-    OSS_UPLOAD_DIR: 'sweet-album/'
+OSS_UPLOAD_DIR: 'PictureBed/'
 };
 ```
 
@@ -98,7 +98,7 @@ window.APP_CONFIG = {
 ## 📁 项目结构
 
 ```
-sweet-album/
+PictureBed/
 ├── index.html          # 主页面
 ├── main.js             # 核心逻辑
 ├── style.css           # 样式文件

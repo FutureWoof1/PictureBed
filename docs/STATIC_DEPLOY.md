@@ -73,9 +73,9 @@ git commit -m "Initial commit: 纯静态甜蜜相册"
 #### 步骤 2：推送到 GitHub
 
 ```bash
-# 1. 在 GitHub 创建新仓库（例如：sweet-album）
+# 1. 在 GitHub 创建新仓库（例如：PictureBed）
 # 2. 关联远程仓库
-git remote add origin https://github.com/你的用户名/sweet-album.git
+git remote add origin https://github.com/你的用户名/PictureBed.git
 git branch -M main
 git push -u origin main
 ```
@@ -91,7 +91,7 @@ git push -u origin main
 
 等待 1-2 分钟后，访问：
 ```
-https://你的用户名.github.io/sweet-album/
+https://你的用户名.github.io/PictureBed/
 ```
 
 ---
