@@ -286,7 +286,7 @@ app.add_middleware(
 
 ## 🚀 快速开始
 
-### 方式一：使用启动脚本（推荐）
+### 方式一：使用启动脚本（本地运行，推荐）
 
 ```bash
 # Windows 系统
@@ -299,7 +299,32 @@ run.bat
 # 4. 启动应用
 ```
 
-### 方式二：手动启动
+### 方式二：部署到 Render（云端部署，推荐）⭐
+
+**最简单的免费云端部署方案！**
+
+```bash
+# 1. 推送代码到 GitHub
+git add .
+git commit -m "Deploy to Render"
+git push origin main
+
+# 2. 访问 https://render.com 并连接你的 GitHub 仓库
+# 3. 配置环境变量（OSS 配置）
+# 4. 点击部署，完成！
+
+# 详细步骤请查看：RENDER_DEPLOY.md
+```
+
+**优势**：
+- ✅ 完全免费（每月 750 小时）
+- ✅ 自动 HTTPS 证书
+- ✅ 自动部署（推送代码即部署）
+- ✅ 全球 CDN 加速
+
+📖 **[查看完整 Render 部署指南](RENDER_DEPLOY.md)**
+
+### 方式三：手动启动（本地开发）
 
 ```bash
 # 1. 安装依赖
@@ -312,7 +337,7 @@ mkdir -p static/uploads
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 方式三：Docker 部署
+### 方式四：Docker 部署
 
 ```bash
 # 1. 构建镜像
