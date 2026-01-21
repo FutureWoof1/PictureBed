@@ -10,7 +10,20 @@
     <!-- 阿里云 OSS SDK -->
     <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.17.1.min.js"></script>
     <!-- 配置文件 -->
-    <script src="config.js"></script>
+    <script>
+        // 默认配置（如果配置文件不存在）
+        window.OSS_CONFIG = window.OSS_CONFIG || {
+            region: '',
+            accessKeyId: '',
+            accessKeySecret: '',
+            bucket: '',
+            uploadDir: 'sweet-album/',
+            dataFile: 'sweet-album/data.json'
+        };
+        window.LOVE_START_DATE = window.LOVE_START_DATE || '2022-10-15';
+    </script>
+    <!-- 优先加载 config.public.js（用于 GitHub 部署），如果不存在则加载 config.js（本地开发） -->
+    <script src="config.public.js" onerror="this.onerror=null; this.src='config.js'; console.log('使用 config.js')"></script>
 </head>
 <body>
     <!-- 背景装饰 -->

@@ -8,6 +8,9 @@
 
 # 静态网页配置（包含 OSS 密钥，不要提交）
 config.js
+config.public.js
+secrets.txt
+# 注意：config.public.js 会由 GitHub Actions 自动生成，不需要提交
 
 # 日志文件
 *.log

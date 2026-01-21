@@ -1,0 +1,71 @@
+name: 部署到 GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # 当推送到 main 分支时触发
+  workflow_dispatch:  # 允许手动触发
+
+# 设置 GITHUB_TOKEN 的权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 注入 OSS 配置
+        run: |
+          # 创建配置文件
+          cat > config.public.js << 'EOF'
+          // 阿里云 OSS 配置（由 GitHub Actions 自动生成）
+          const OSS_CONFIG = {
+              region: '${{ secrets.OSS_REGION }}',
+              accessKeyId: '${{ secrets.OSS_ACCESS_KEY_ID }}',
+              accessKeySecret: '${{ secrets.OSS_ACCESS_KEY_SECRET }}',
+              bucket: '${{ secrets.OSS_BUCKET }}',
+              uploadDir: '${{ secrets.OSS_UPLOAD_DIR || 'sweet-album/' }}',
+              dataFile: '${{ secrets.OSS_DATA_FILE || 'sweet-album/data.json' }}'
+          };
+
+          // 恋爱开始日期配置
+          const LOVE_START_DATE = '${{ secrets.LOVE_START_DATE || '2022-10-15' }}';
+          EOF
+          
+          echo "✅ 配置文件已生成"
+          
+      - name: 验证配置
+        run: |
+          if [ ! -f "config.public.js" ]; then
+            echo "❌ 配置文件生成失败"
+            exit 1
+          fi
+          echo "✅ 配置文件验证通过"
+
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 部署完成
+        run: |
+          echo "🎉 部署成功！"
+          echo "📝 访问地址: ${{ steps.deployment.outputs.page_url }}"

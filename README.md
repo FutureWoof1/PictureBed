@@ -2,6 +2,10 @@
 
 一个记录恋爱时光的网页应用，支持记录甜蜜日常、重要纪念日，并自动生成时光轴。
 
+> 🚀 **快速开始**：[3 步部署到 GitHub Pages](docs/QUICK_START.md) | 📖 [详细部署指南](docs/GITHUB_ACTIONS_DEPLOY.md)
+
+---
+
 ## 🎯 版本说明
 
 本项目提供两个版本：
@@ -27,25 +31,60 @@
 
 1. 双击打开 `index.html`（或使用本地服务器）
 
-### 方式二：部署到 GitHub Pages
+### 方式二：部署到 GitHub Pages（使用 GitHub Actions - 推荐）✅
+
+**最安全的方式**：密钥存储在 GitHub Secrets，不会暴露在代码中。
 
 ```bash
-# 1. 配置 OSS（可选）
-cp config.example.js config.js
-# 编辑 config.js，填入你的 OSS 配置
+# 1. 设置 GitHub Secrets
+# 在仓库 Settings → Secrets and variables → Actions 中添加：
+# - OSS_REGION
+# - OSS_ACCESS_KEY_ID
+# - OSS_ACCESS_KEY_SECRET
+# - OSS_BUCKET
+# - OSS_UPLOAD_DIR（可选）
+# - OSS_DATA_FILE（可选）
+# - LOVE_START_DATE（可选）
+
+# 2. 启用 GitHub Pages
+# Settings → Pages → Source: GitHub Actions
+
+# 3. 推送代码（会自动部署）
+git add .
+git commit -m "部署到 GitHub Pages"
+git push origin main
+```
+
+⚠️ **重要**：
+- ✅ **密钥安全**：OSS 配置存储在 GitHub Secrets，不会暴露
+- ✅ **自动部署**：推送代码后自动部署
+- ✅ **完全免费**：GitHub Actions 对公开仓库免费
+- ✅ **必须设置 OSS 跨域规则（CORS）**
+
+详细部署教程请查看 [docs/GITHUB_ACTIONS_DEPLOY.md](docs/GITHUB_ACTIONS_DEPLOY.md) ⭐
+
+---
+
+### 方式三：手动部署（不推荐）
+
+如果你不想使用 GitHub Actions，也可以手动提交配置文件：
+
+```bash
+# 1. 配置 OSS
+# 编辑 config.public.js，填入你的 OSS 配置（这个文件会被提交到 GitHub）
 
 # 2. 推送到 GitHub
-git init
 git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/你的用户名/sweet-album.git
-git push -u origin main
+git commit -m "部署到 GitHub Pages"
+git push origin main
 
 # 3. 在 GitHub 仓库设置中启用 Pages
 # Settings → Pages → Source: main → Folder: / (root)
 ```
 
-详细部署教程请查看 [docs/STATIC_DEPLOY.md](docs/STATIC_DEPLOY.md)
+⚠️ **警告**：这种方式会将 OSS 密钥提交到代码库，仅适用于私有仓库！
+
+详细部署教程请查看 [docs/GITHUB_DEPLOY.md](docs/GITHUB_DEPLOY.md)
 
 ---
 
