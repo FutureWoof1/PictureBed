@@ -1,76 +1,157 @@
-// API基础配置
-const API_BASE = '';
+// 配置管理
+const CONFIG = {
+    // 阿里云 OSS 配置（需要在 config.js 中配置）
+    oss: {
+        region: 'oss-cn-beijing',
+        accessKeyId: '',
+        accessKeySecret: '',
+        bucket: '',
+        uploadDir: 'sweet-album/'
+    },
+    // 恋爱开始日期
+    startDate: '2022-10-15'
+};
 
-// API管理模块
-class APIManager {
-    // 获取所有甜蜜日常
-    async getMemories() {
-        const response = await fetch(`${API_BASE}/api/memories`);
-        const result = await response.json();
-        return result.data || [];
+// 从 config.js 加载配置（如果存在）
+if (typeof OSS_CONFIG !== 'undefined') {
+    Object.assign(CONFIG.oss, OSS_CONFIG);
+}
+
+// 本地存储管理模块
+class StorageManager {
+    constructor() {
+        this.KEYS = {
+            MEMORIES: 'sweet_album_memories',
+            ANNIVERSARIES: 'sweet_album_anniversaries'
+        };
+        this.initStorage();
     }
 
-    // 创建甜蜜日常
-    async createMemory(memory) {
-        const response = await fetch(`${API_BASE}/api/memories`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(memory)
-        });
-        return await response.json();
+    initStorage() {
+        if (!localStorage.getItem(this.KEYS.MEMORIES)) {
+            localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(this.KEYS.ANNIVERSARIES)) {
+            localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify([]));
+        }
     }
 
-    // 删除甜蜜日常
-    async deleteMemory(id) {
-        const response = await fetch(`${API_BASE}/api/memories/${id}`, {
-            method: 'DELETE'
-        });
-        return await response.json();
+    // 甜蜜日常
+    getMemories() {
+        return JSON.parse(localStorage.getItem(this.KEYS.MEMORIES) || '[]');
     }
 
-    // 获取所有纪念日
-    async getAnniversaries() {
-        const response = await fetch(`${API_BASE}/api/anniversaries`);
-        const result = await response.json();
-        return result.data || [];
+    addMemory(memory) {
+        const memories = this.getMemories();
+        memory.id = Date.now();
+        memories.push(memory);
+        localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(memories));
+        return memory;
     }
 
-    // 创建纪念日
-    async createAnniversary(anniversary) {
-        const response = await fetch(`${API_BASE}/api/anniversaries`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(anniversary)
-        });
-        return await response.json();
+    deleteMemory(id) {
+        const memories = this.getMemories().filter(m => m.id !== id);
+        localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(memories));
     }
 
-    // 删除纪念日
-    async deleteAnniversary(id) {
-        const response = await fetch(`${API_BASE}/api/anniversaries/${id}`, {
-            method: 'DELETE'
-        });
-        return await response.json();
+    // 纪念日
+    getAnniversaries() {
+        return JSON.parse(localStorage.getItem(this.KEYS.ANNIVERSARIES) || '[]');
     }
 
-    // 上传图片
+    addAnniversary(anniversary) {
+        const anniversaries = this.getAnniversaries();
+        anniversary.id = Date.now();
+        anniversaries.push(anniversary);
+        localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(anniversaries));
+        return anniversary;
+    }
+
+    deleteAnniversary(id) {
+        const anniversaries = this.getAnniversaries().filter(a => a.id !== id);
+        localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(anniversaries));
+    }
+
+    // 导出数据
+    exportData() {
+        return {
+            memories: this.getMemories(),
+            anniversaries: this.getAnniversaries(),
+            exportDate: new Date().toISOString()
+        };
+    }
+
+    // 导入数据
+    importData(data) {
+        if (data.memories) {
+            localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(data.memories));
+        }
+        if (data.anniversaries) {
+            localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(data.anniversaries));
+        }
+    }
+}
+
+// 图片上传管理模块
+class ImageUploader {
+    constructor() {
+        this.ossClient = null;
+        this.initOSS();
+    }
+
+    initOSS() {
+        // 检查是否配置了 OSS
+        if (!CONFIG.oss.accessKeyId || !CONFIG.oss.bucket) {
+            console.warn('OSS 未配置，将使用 Base64 存储图片（不推荐用于生产环境）');
+            return;
+        }
+
+        // 初始化 OSS 客户端（需要引入 ali-oss SDK）
+        if (typeof OSS !== 'undefined') {
+            this.ossClient = new OSS({
+                region: CONFIG.oss.region,
+                accessKeyId: CONFIG.oss.accessKeyId,
+                accessKeySecret: CONFIG.oss.accessKeySecret,
+                bucket: CONFIG.oss.bucket
+            });
+        }
+    }
+
     async uploadImage(file) {
-        const formData = new FormData();
-        formData.append('file', file);
+        // 如果配置了 OSS，使用 OSS 上传
+        if (this.ossClient) {
+            return await this.uploadToOSS(file);
+        }
         
-        const response = await fetch(`${API_BASE}/api/upload`, {
-            method: 'POST',
-            body: formData
+        // 否则转换为 Base64（仅用于测试，不推荐生产环境）
+        return await this.convertToBase64(file);
+    }
+
+    async uploadToOSS(file) {
+        try {
+            const fileName = `${CONFIG.oss.uploadDir}${Date.now()}_${file.name}`;
+            const result = await this.ossClient.put(fileName, file);
+            return result.url;
+        } catch (error) {
+            console.error('OSS 上传失败:', error);
+            throw new Error('图片上传失败');
+        }
+    }
+
+    convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
         });
-        const result = await response.json();
-        return result.data.url;
     }
 }
 
 // 计数器管理模块
 class CounterManager {
     constructor() {
-        this.startDate = new Date('2022-10-15');
+        this.startDate = new Date(CONFIG.startDate);
         this.interval = null;
     }
 
@@ -110,8 +191,9 @@ class CounterManager {
 
 // UI管理模块
 class UIManager {
-    constructor(api) {
-        this.api = api;
+    constructor(storage, uploader) {
+        this.storage = storage;
+        this.uploader = uploader;
         this.uploadedPhotos = {
             memory: [],
             anniversary: []
@@ -157,12 +239,15 @@ class UIManager {
         );
 
         // 禁用提交按钮
-        if (submitBtn) submitBtn.disabled = true;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '上传中...';
+        }
 
         for (const file of files) {
             try {
                 // 上传图片
-                const url = await this.api.uploadImage(file);
+                const url = await this.uploader.uploadImage(file);
                 this.uploadedPhotos[type].push(url);
 
                 // 显示预览
@@ -190,13 +275,16 @@ class UIManager {
         }
 
         // 启用提交按钮
-        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '保存';
+        }
     }
 
     // 时光轴 - 从甜蜜日常和纪念日联动生成
-    async loadTimeline() {
-        const memories = await this.api.getMemories();
-        const anniversaries = await this.api.getAnniversaries();
+    loadTimeline() {
+        const memories = this.storage.getMemories();
+        const anniversaries = this.storage.getAnniversaries();
         const container = document.getElementById('timelineContainer');
         
         if (!container) return;
@@ -266,8 +354,8 @@ class UIManager {
     }
 
     // 甜蜜日常
-    async loadMemories() {
-        const memories = await this.api.getMemories();
+    loadMemories() {
+        const memories = this.storage.getMemories();
         const container = document.getElementById('memoriesGrid');
         
         if (!container) return;
@@ -306,9 +394,9 @@ class UIManager {
 
         // 绑定删除事件
         container.querySelectorAll('.memory-delete').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 const id = parseInt(e.currentTarget.dataset.id);
-                await this.deleteMemory(id);
+                this.deleteMemory(id);
             });
         });
 
@@ -328,7 +416,7 @@ class UIManager {
         });
     }
 
-    async addMemory() {
+    addMemory() {
         const date = document.getElementById('memoryDate').value;
         const title = document.getElementById('memoryTitle').value;
         const content = document.getElementById('memoryContent').value;
@@ -344,24 +432,24 @@ class UIManager {
             photos: this.uploadedPhotos.memory
         };
 
-        await this.api.createMemory(memory);
+        this.storage.addMemory(memory);
         this.uploadedPhotos.memory = [];
-        await this.loadMemories();
-        await this.loadTimeline();
+        this.loadMemories();
+        this.loadTimeline();
         this.closeModal('memoryModal');
     }
 
-    async deleteMemory(id) {
+    deleteMemory(id) {
         if (!confirm('确定要删除这条记录吗？')) return;
 
-        await this.api.deleteMemory(id);
-        await this.loadMemories();
-        await this.loadTimeline();
+        this.storage.deleteMemory(id);
+        this.loadMemories();
+        this.loadTimeline();
     }
 
     // 纪念日
-    async loadAnniversaries() {
-        const anniversaries = await this.api.getAnniversaries();
+    loadAnniversaries() {
+        const anniversaries = this.storage.getAnniversaries();
         const container = document.getElementById('anniversariesGrid');
         
         if (!container) return;
@@ -399,9 +487,9 @@ class UIManager {
 
         // 绑定删除事件
         container.querySelectorAll('.anniversary-delete').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 const id = parseInt(e.currentTarget.dataset.id);
-                await this.deleteAnniversary(id);
+                this.deleteAnniversary(id);
             });
         });
 
@@ -421,7 +509,7 @@ class UIManager {
         });
     }
 
-    async addAnniversary() {
+    addAnniversary() {
         const date = document.getElementById('anniversaryDate').value;
         const name = document.getElementById('anniversaryName').value;
         const icon = document.getElementById('anniversaryIcon').value;
@@ -437,19 +525,19 @@ class UIManager {
             photos: this.uploadedPhotos.anniversary
         };
 
-        await this.api.createAnniversary(anniversary);
+        this.storage.addAnniversary(anniversary);
         this.uploadedPhotos.anniversary = [];
-        await this.loadAnniversaries();
-        await this.loadTimeline();
+        this.loadAnniversaries();
+        this.loadTimeline();
         this.closeModal('anniversaryModal');
     }
 
-    async deleteAnniversary(id) {
+    deleteAnniversary(id) {
         if (!confirm('确定要删除这个纪念日吗？')) return;
 
-        await this.api.deleteAnniversary(id);
-        await this.loadAnniversaries();
-        await this.loadTimeline();
+        this.storage.deleteAnniversary(id);
+        this.loadAnniversaries();
+        this.loadTimeline();
     }
 
     // 照片查看器
@@ -509,8 +597,9 @@ class UIManager {
 // 初始化应用
 class App {
     constructor() {
-        this.api = new APIManager();
-        this.ui = new UIManager(this.api);
+        this.storage = new StorageManager();
+        this.uploader = new ImageUploader();
+        this.ui = new UIManager(this.storage, this.uploader);
         this.counter = new CounterManager();
         
         window.uiManager = this.ui;
@@ -518,15 +607,16 @@ class App {
         this.init();
     }
 
-    async init() {
+    init() {
         this.counter.init();
 
-        await this.ui.loadTimeline();
-        await this.ui.loadMemories();
-        await this.ui.loadAnniversaries();
+        this.ui.loadTimeline();
+        this.ui.loadMemories();
+        this.ui.loadAnniversaries();
 
         this.bindEvents();
         this.initNavigation();
+        this.addDataManagement();
     }
 
     bindEvents() {
@@ -562,17 +652,17 @@ class App {
 
         const memoryForm = document.getElementById('memoryForm');
         if (memoryForm) {
-            memoryForm.addEventListener('submit', async (e) => {
+            memoryForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                await this.ui.addMemory();
+                this.ui.addMemory();
             });
         }
 
         const anniversaryForm = document.getElementById('anniversaryForm');
         if (anniversaryForm) {
-            anniversaryForm.addEventListener('submit', async (e) => {
+            anniversaryForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                await this.ui.addAnniversary();
+                this.ui.addAnniversary();
             });
         }
 
@@ -646,6 +736,65 @@ class App {
                 }
             });
         });
+    }
+
+    // 添加数据管理功能
+    addDataManagement() {
+        // 在页脚添加数据管理按钮
+        const footer = document.querySelector('.footer');
+        if (footer) {
+            const dataManageDiv = document.createElement('div');
+            dataManageDiv.style.marginTop = '20px';
+            dataManageDiv.innerHTML = `
+                <button id="exportDataBtn" style="margin: 5px; padding: 8px 16px; background: #8A2BE2; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-download"></i> 导出数据
+                </button>
+                <button id="importDataBtn" style="margin: 5px; padding: 8px 16px; background: #FF69B4; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-upload"></i> 导入数据
+                </button>
+                <input type="file" id="importDataFile" accept=".json" style="display: none;">
+            `;
+            footer.insertBefore(dataManageDiv, footer.firstChild);
+
+            // 导出数据
+            document.getElementById('exportDataBtn').addEventListener('click', () => {
+                const data = this.storage.exportData();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sweet-album-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // 导入数据
+            document.getElementById('importDataBtn').addEventListener('click', () => {
+                document.getElementById('importDataFile').click();
+            });
+
+            document.getElementById('importDataFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if (confirm('确定要导入数据吗？这将覆盖当前所有数据！')) {
+                                this.storage.importData(data);
+                                this.ui.loadMemories();
+                                this.ui.loadAnniversaries();
+                                this.ui.loadTimeline();
+                                alert('数据导入成功！');
+                            }
+                        } catch (error) {
+                            alert('数据格式错误，导入失败！');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
     }
 }
 
