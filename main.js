@@ -122,7 +122,9 @@ class StorageManager {
             };
 
             const content = JSON.stringify(data, null, 2);
-            await this.ossClient.put(CONFIG.oss.dataFile, Buffer.from(content));
+            // 在浏览器环境中，OSS SDK 可以直接接受 Blob 对象
+            const blob = new Blob([content], { type: 'application/json' });
+            await this.ossClient.put(CONFIG.oss.dataFile, blob);
             
             localStorage.setItem(this.KEYS.LAST_SYNC, new Date().toISOString());
             console.log('✅ 数据已同步到云端');
