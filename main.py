@@ -2,6 +2,7 @@ import os
 import json
 import base64
 import httpx
+import oss2
 from datetime import datetime
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File
@@ -9,8 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
-import pymysql
-from pymysql.cursors import DictCursor
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 app = FastAPI()
 
@@ -23,25 +26,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 数据库配置（从环境变量获取）
-DB_CONFIG = {
-    'host': os.getenv('DB_HOST', '11.142.154.110'),
-    'port': int(os.getenv('DB_PORT', 3306)),
-    'user': os.getenv('DB_USER', 'with_sdsgfuqiplgabccw'),
-    'password': os.getenv('DB_PASSWORD', '2K!Yw0V^ulAsll'),
-    'database': os.getenv('DB_NAME', 'wbyemtvy'),
-    'charset': 'utf8mb4',
-    'cursorclass': DictCursor
+# 数据存储配置（使用 JSON 文件）
+DATA_DIR = os.getenv('DATA_DIR', 'data')
+MEMORIES_FILE = os.path.join(DATA_DIR, 'memories.json')
+ANNIVERSARIES_FILE = os.path.join(DATA_DIR, 'anniversaries.json')
+UPLOADS_FILE = os.path.join(DATA_DIR, 'uploads.json')
+
+# 阿里云 OSS 配置（从环境变量获取）
+OSS_CONFIG = {
+    'access_key_id': os.getenv('OSS_ACCESS_KEY_ID', ''),
+    'access_key_secret': os.getenv('OSS_ACCESS_KEY_SECRET', ''),
+    'endpoint': os.getenv('OSS_ENDPOINT', ''),  # 例如: oss-cn-hangzhou.aliyuncs.com
+    'bucket_name': os.getenv('OSS_BUCKET_NAME', ''),
+    'base_url': os.getenv('OSS_BASE_URL', ''),  # 自定义域名或Bucket域名
+    'upload_dir': os.getenv('OSS_UPLOAD_DIR', 'sweet-album/')  # OSS中的上传目录
 }
 
-# 图床配置（从环境变量获取）
-IMAGE_BED_CONFIG = {
-    'type': os.getenv('IMAGE_BED_TYPE', 'smms'),  # 图床类型: smms, imgbb, imgur
-    'api_key': os.getenv('IMAGE_BED_API_KEY', ''),  # API密钥（SM.MS可选）
-    'smms_api_url': 'https://sm.ms/api/v2/upload',
-    'imgbb_api_url': 'https://api.imgbb.com/1/upload',
-    'imgur_api_url': 'https://api.imgur.com/3/image'
-}
+# 初始化 OSS Bucket
+def init_oss_bucket():
+    """初始化阿里云 OSS Bucket"""
+    if not all([OSS_CONFIG['access_key_id'], OSS_CONFIG['access_key_secret'], 
+                OSS_CONFIG['endpoint'], OSS_CONFIG['bucket_name']]):
+        print("[警告] OSS配置不完整，图片上传功能将不可用")
+        return None
+    
+    try:
+        auth = oss2.Auth(OSS_CONFIG['access_key_id'], OSS_CONFIG['access_key_secret'])
+        bucket = oss2.Bucket(auth, OSS_CONFIG['endpoint'], OSS_CONFIG['bucket_name'])
+        print(f"[OK] 阿里云 OSS 初始化成功: {OSS_CONFIG['bucket_name']}")
+        return bucket
+    except Exception as e:
+        print(f"[错误] OSS初始化失败: {e}")
+        return None
+
+# 全局 OSS Bucket 实例
+oss_bucket = None
 
 # 数据模型
 class Memory(BaseModel):
@@ -58,6 +77,44 @@ class Anniversary(BaseModel):
     description: str
     photos: Optional[List[str]] = []
 
+# JSON 文件操作辅助函数
+def init_data_files():
+    """初始化数据文件"""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    
+    if not os.path.exists(MEMORIES_FILE):
+        with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+    
+    if not os.path.exists(ANNIVERSARIES_FILE):
+        with open(ANNIVERSARIES_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+    
+    if not os.path.exists(UPLOADS_FILE):
+        with open(UPLOADS_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+    
+    print(f"[OK] 数据文件初始化完成: {DATA_DIR}")
+
+def read_json_file(filepath):
+    """读取 JSON 文件"""
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return []
+
+def write_json_file(filepath, data):
+    """写入 JSON 文件"""
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def get_next_id(data_list):
+    """获取下一个ID"""
+    if not data_list:
+        return 1
+    return max(item.get('id', 0) for item in data_list) + 1
+
 # 数据库连接
 def get_db_connection():
     return pymysql.connect(**DB_CONFIG)
@@ -67,19 +124,21 @@ def get_db_connection():
 async def root():
     return RedirectResponse(url="/static/index.html")
 
+# 启动时初始化数据文件和 OSS
+@app.on_event("startup")
+async def startup_event():
+    global oss_bucket
+    init_data_files()
+    oss_bucket = init_oss_bucket()
+
 # ========== 甜蜜日常 API ==========
 @app.get("/api/memories")
 async def get_memories():
     """获取所有甜蜜日常"""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM memories ORDER BY date DESC")
-            memories = cursor.fetchall()
-            # 解析photos字段（JSON字符串转列表）
-            for memory in memories:
-                memory['photos'] = json.loads(memory['photos']) if memory['photos'] else []
-        conn.close()
+        memories = read_json_file(MEMORIES_FILE)
+        # 按日期降序排序
+        memories.sort(key=lambda x: x.get('date', ''), reverse=True)
         return {"code": 0, "data": memories}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -88,16 +147,19 @@ async def get_memories():
 async def create_memory(memory: Memory):
     """创建甜蜜日常"""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            photos_json = json.dumps(memory.photos)
-            sql = """INSERT INTO memories (date, title, content, mood, photos) 
-                     VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(sql, (memory.date, memory.title, memory.content, memory.mood, photos_json))
-            conn.commit()
-            memory_id = cursor.lastrowid
-        conn.close()
-        return {"code": 0, "data": {"id": memory_id}, "message": "创建成功"}
+        memories = read_json_file(MEMORIES_FILE)
+        new_memory = {
+            "id": get_next_id(memories),
+            "date": memory.date,
+            "title": memory.title,
+            "content": memory.content,
+            "mood": memory.mood,
+            "photos": memory.photos,
+            "created_at": datetime.now().isoformat()
+        }
+        memories.append(new_memory)
+        write_json_file(MEMORIES_FILE, memories)
+        return {"code": 0, "data": {"id": new_memory['id']}, "message": "创建成功"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -105,11 +167,9 @@ async def create_memory(memory: Memory):
 async def delete_memory(memory_id: int):
     """删除甜蜜日常"""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM memories WHERE id = %s", (memory_id,))
-            conn.commit()
-        conn.close()
+        memories = read_json_file(MEMORIES_FILE)
+        memories = [m for m in memories if m.get('id') != memory_id]
+        write_json_file(MEMORIES_FILE, memories)
         return {"code": 0, "message": "删除成功"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -119,14 +179,9 @@ async def delete_memory(memory_id: int):
 async def get_anniversaries():
     """获取所有纪念日"""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM anniversaries ORDER BY date ASC")
-            anniversaries = cursor.fetchall()
-            # 解析photos字段
-            for anniversary in anniversaries:
-                anniversary['photos'] = json.loads(anniversary['photos']) if anniversary['photos'] else []
-        conn.close()
+        anniversaries = read_json_file(ANNIVERSARIES_FILE)
+        # 按日期升序排序
+        anniversaries.sort(key=lambda x: x.get('date', ''))
         return {"code": 0, "data": anniversaries}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -135,17 +190,19 @@ async def get_anniversaries():
 async def create_anniversary(anniversary: Anniversary):
     """创建纪念日"""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            photos_json = json.dumps(anniversary.photos)
-            sql = """INSERT INTO anniversaries (date, name, icon, description, photos) 
-                     VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(sql, (anniversary.date, anniversary.name, anniversary.icon, 
-                                anniversary.description, photos_json))
-            conn.commit()
-            anniversary_id = cursor.lastrowid
-        conn.close()
-        return {"code": 0, "data": {"id": anniversary_id}, "message": "创建成功"}
+        anniversaries = read_json_file(ANNIVERSARIES_FILE)
+        new_anniversary = {
+            "id": get_next_id(anniversaries),
+            "date": anniversary.date,
+            "name": anniversary.name,
+            "icon": anniversary.icon,
+            "description": anniversary.description,
+            "photos": anniversary.photos,
+            "created_at": datetime.now().isoformat()
+        }
+        anniversaries.append(new_anniversary)
+        write_json_file(ANNIVERSARIES_FILE, anniversaries)
+        return {"code": 0, "data": {"id": new_anniversary['id']}, "message": "创建成功"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -153,88 +210,46 @@ async def create_anniversary(anniversary: Anniversary):
 async def delete_anniversary(anniversary_id: int):
     """删除纪念日"""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM anniversaries WHERE id = %s", (anniversary_id,))
-            conn.commit()
-        conn.close()
+        anniversaries = read_json_file(ANNIVERSARIES_FILE)
+        anniversaries = [a for a in anniversaries if a.get('id') != anniversary_id]
+        write_json_file(ANNIVERSARIES_FILE, anniversaries)
         return {"code": 0, "message": "删除成功"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 # ========== 图片上传辅助函数 ==========
-async def upload_to_smms(file_content: bytes, filename: str, api_key: str = None):
-    """上传图片到 SM.MS 图床"""
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        files = {'smfile': (filename, file_content)}
-        headers = {}
-        if api_key:
-            headers['Authorization'] = api_key
-        
-        response = await client.post(
-            IMAGE_BED_CONFIG['smms_api_url'],
-            files=files,
-            headers=headers
-        )
-        result = response.json()
-        
-        if result.get('success'):
-            return result['data']['url']
-        elif result.get('code') == 'image_repeated':
-            # 图片已存在，返回已有URL
-            return result['images']
-        else:
-            raise Exception(f"SM.MS上传失败: {result.get('message', '未知错误')}")
-
-async def upload_to_imgbb(file_content: bytes, filename: str, api_key: str):
-    """上传图片到 ImgBB 图床"""
-    if not api_key:
-        raise Exception("ImgBB需要API Key，请设置IMAGE_BED_API_KEY环境变量")
+async def upload_to_oss(file_content: bytes, filename: str) -> str:
+    """上传图片到阿里云 OSS"""
+    if not oss_bucket:
+        raise Exception("OSS未初始化，请检查配置")
     
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        # ImgBB需要base64编码
-        image_base64 = base64.b64encode(file_content).decode('utf-8')
-        data = {
-            'key': api_key,
-            'image': image_base64,
-            'name': filename
-        }
+    try:
+        # 构建 OSS 中的文件路径
+        object_name = f"{OSS_CONFIG['upload_dir']}{filename}"
         
-        response = await client.post(IMAGE_BED_CONFIG['imgbb_api_url'], data=data)
-        result = response.json()
+        # 上传文件
+        result = oss_bucket.put_object(object_name, file_content)
         
-        if result.get('success'):
-            return result['data']['url']
+        if result.status == 200:
+            # 构建访问URL
+            if OSS_CONFIG['base_url']:
+                # 使用自定义域名
+                base_url = OSS_CONFIG['base_url'].rstrip('/')
+                image_url = f"{base_url}/{object_name}"
+            else:
+                # 使用默认的 Bucket 域名
+                image_url = f"https://{OSS_CONFIG['bucket_name']}.{OSS_CONFIG['endpoint']}/{object_name}"
+            
+            return image_url
         else:
-            raise Exception(f"ImgBB上传失败: {result.get('error', {}).get('message', '未知错误')}")
-
-async def upload_to_imgur(file_content: bytes, filename: str, api_key: str):
-    """上传图片到 Imgur 图床"""
-    if not api_key:
-        raise Exception("Imgur需要Client ID，请设置IMAGE_BED_API_KEY环境变量")
-    
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        # Imgur需要base64编码
-        image_base64 = base64.b64encode(file_content).decode('utf-8')
-        headers = {'Authorization': f'Client-ID {api_key}'}
-        data = {'image': image_base64, 'name': filename}
-        
-        response = await client.post(
-            IMAGE_BED_CONFIG['imgur_api_url'],
-            headers=headers,
-            data=data
-        )
-        result = response.json()
-        
-        if result.get('success'):
-            return result['data']['link']
-        else:
-            raise Exception(f"Imgur上传失败: {result.get('data', {}).get('error', '未知错误')}")
+            raise Exception(f"OSS上传失败，状态码: {result.status}")
+    except Exception as e:
+        raise Exception(f"OSS上传错误: {str(e)}")
 
 # ========== 图片上传 API ==========
 @app.post("/api/upload")
 async def upload_image(file: UploadFile = File(...)):
-    """上传图片到图床"""
+    """上传图片到阿里云 OSS"""
     try:
         # 检查文件类型
         if not file.content_type.startswith('image/'):
@@ -248,28 +263,19 @@ async def upload_image(file: UploadFile = File(...)):
         ext = file.filename.split('.')[-1] if '.' in file.filename else 'jpg'
         filename = f"{timestamp}.{ext}"
         
-        # 根据配置选择图床
-        image_bed_type = IMAGE_BED_CONFIG['type'].lower()
-        api_key = IMAGE_BED_CONFIG['api_key']
+        # 上传到阿里云 OSS
+        image_url = await upload_to_oss(contents, filename)
         
-        if image_bed_type == 'smms':
-            image_url = await upload_to_smms(contents, filename, api_key)
-        elif image_bed_type == 'imgbb':
-            image_url = await upload_to_imgbb(contents, filename, api_key)
-        elif image_bed_type == 'imgur':
-            image_url = await upload_to_imgur(contents, filename, api_key)
-        else:
-            raise HTTPException(status_code=400, detail=f"不支持的图床类型: {image_bed_type}")
-        
-        # 保存上传记录到数据库
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO uploaded_images (filename, filepath) VALUES (%s, %s)",
-                (filename, image_url)
-            )
-            conn.commit()
-        conn.close()
+        # 保存上传记录到 JSON 文件
+        uploads = read_json_file(UPLOADS_FILE)
+        new_upload = {
+            "id": get_next_id(uploads),
+            "filename": filename,
+            "filepath": image_url,
+            "created_at": datetime.now().isoformat()
+        }
+        uploads.append(new_upload)
+        write_json_file(UPLOADS_FILE, uploads)
         
         return {"code": 0, "data": {"url": image_url}, "message": "上传成功"}
     except HTTPException:
@@ -279,3 +285,9 @@ async def upload_image(file: UploadFile = File(...)):
 
 # 挂载静态文件目录（必须在最后）
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
+# 直接运行支持
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv('PORT', 8001))  # 默认使用 8001 端口，避免冲突
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

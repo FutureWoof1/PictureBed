@@ -3,3 +3,5 @@ uvicorn
 pymysql
 python-multipart
 httpx
+oss2
+python-dotenv

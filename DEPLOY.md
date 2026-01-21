@@ -1,5 +1,41 @@
 # Git 部署指南
 
+## 🎯 快速导航
+
+- **[本地运行](#本地开发运行当前电脑)**：在你的开发电脑上直接运行（不需要 Git 克隆）
+- **[推送到 Git](#准备工作)**：将代码上传到 GitHub/Gitee
+- **[部署到服务器](#部署到远程服务器需要克隆)**：在云服务器上运行（需要 Git 克隆）
+
+---
+
+## 💻 本地开发运行（当前电脑）
+
+> **适用场景**：你已经有代码在本地，只想在当前电脑上运行测试
+
+```bash
+# 1. 进入项目目录
+cd D:/BackUp/Project/Python/picture
+
+# 2. 安装依赖
+pip install -r requirements.txt
+
+# 3. 配置环境变量（可选）
+# 如果使用默认的 SM.MS 图床，可以跳过此步骤
+# cp .env.example .env
+
+# 4. 启动应用
+uvicorn main:app --reload
+```
+
+访问：http://localhost:8000
+
+**说明**：
+- ✅ 不需要 `git clone`，因为代码已经在你的电脑上
+- ✅ `--reload` 参数会在代码修改时自动重启，方便开发
+- ✅ 默认使用 SM.MS 免费图床，无需额外配置
+
+---
+
 ## 📦 准备工作
 
 ### 1. 初始化 Git 仓库
@@ -48,10 +84,42 @@ git push -u origin main
 
 ## 🚀 部署到服务器
 
-### 方式一：直接部署
+> **重要说明**：以下步骤适用于**将代码部署到远程服务器**（如阿里云、腾讯云等）。
+> 
+> - ✅ **需要克隆**：在远程服务器、团队成员电脑等**没有代码**的环境
+> - ❌ **不需要克隆**：在你当前的开发电脑上（代码已经存在于 `D:/BackUp/Project/Python/picture`）
+
+### 本地开发运行（当前电脑）
+
+如果你只是想在当前电脑上运行项目：
 
 ```bash
-# 1. 克隆仓库
+# 进入项目目录
+cd D:/BackUp/Project/Python/picture
+
+# 安装依赖
+pip install -r requirements.txt
+
+# 配置环境变量（可选，使用默认配置也可以）
+# cp .env.example .env
+
+# 启动应用
+uvicorn main:app --reload  # 开发模式，代码修改自动重启
+# 或
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+访问：http://localhost:8000
+
+### 方式一：部署到远程服务器（需要克隆）
+
+**使用场景**：将项目部署到阿里云、腾讯云、AWS 等云服务器
+
+```bash
+# 1. SSH 登录到远程服务器
+ssh user@your-server-ip
+
+# 2. 克隆仓库（从 Git 获取代码）
 git clone https://github.com/你的用户名/sweet-album.git
 cd sweet-album
 

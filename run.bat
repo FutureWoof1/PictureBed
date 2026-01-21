@@ -50,11 +50,11 @@ echo [4/4] 启动应用...
 echo.
 echo ========================================
 echo    应用正在启动...
-echo    访问地址: http://localhost:8000
+echo    访问地址: http://localhost:8001
 echo    按 Ctrl+C 停止服务
 echo ========================================
 echo.
 
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 pause

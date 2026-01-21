@@ -52,6 +52,9 @@ static/uploads/
 *.sqlite
 *.sqlite3
 
+# 数据文件（JSON 存储）
+data/
+
 # 临时文件
 *.tmp
 *.bak

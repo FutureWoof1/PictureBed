@@ -2,13 +2,13 @@
 
 ## 📖 项目简介
 
-这是一个基于 FastAPI + MySQL 的情侣纪念日管理系统，用于记录和管理甜蜜日常和重要纪念日。系统提供了完整的前后端功能，包括日常记录、纪念日管理、图片上传等功能。
+这是一个基于 FastAPI + JSON 文件存储的情侣纪念日管理系统，用于记录和管理甜蜜日常和重要纪念日。系统提供了完整的前后端功能，包括日常记录、纪念日管理、图片上传等功能。
 
 ## 🏗️ 技术栈
 
 ### 后端
 - **FastAPI**: 现代化的 Python Web 框架
-- **PyMySQL**: MySQL 数据库连接驱动
+- **JSON 文件存储**: 轻量级数据持久化方案
 - **Uvicorn**: ASGI 服务器
 - **Pydantic**: 数据验证和序列化
 - **HTTPX**: 异步 HTTP 客户端（用于图床上传）
@@ -17,8 +17,8 @@
 - **原生 HTML/CSS/JavaScript**: 无框架依赖
 - **响应式设计**: 支持移动端和桌面端
 
-### 数据库
-- **MySQL**: 关系型数据库
+### 数据存储
+- **JSON 文件**: 本地文件存储，无需数据库
 
 ## 📁 项目结构
 
@@ -30,6 +30,10 @@ picture/
 ├── Dockerfile             # Docker 容器配置
 ├── .gitignore             # Git 忽略文件配置
 ├── .env.example           # 环境变量配置示例
+├── data/                  # 数据存储目录（JSON 文件）
+│   ├── memories.json      # 甜蜜日常数据
+│   ├── anniversaries.json # 纪念日数据
+│   └── uploads.json       # 上传记录
 └── static/                # 静态资源目录
     ├── index.html         # 前端主页面
     ├── main.js            # 前端 JavaScript 逻辑
@@ -47,7 +51,7 @@ picture/
     ↓
 初始化中间件 (CORS)
     ↓
-加载数据库配置 (DB_CONFIG)
+初始化数据文件 (data/*.json)
     ↓
 注册 API 路由
     ↓
@@ -194,10 +198,10 @@ upload_image() 函数执行
 
 **关键点：**
 - 文件名生成：`{YYYYMMDDHHMMSSffffff}.{ext}` 确保唯一性
-- 存储位置：使用第三方图床服务，不占用服务器空间
-- 支持多种图床：SM.MS（免费）、ImgBB、Imgur
-- 数据库记录：保存文件名和图床 URL，便于管理和追踪
-- 异步上传：使用 HTTPX 异步客户端提升性能
+- 存储位置：使用阿里云 OSS 对象存储服务
+- 访问方式：通过 OSS 公共读权限或 CDN 加速域名访问
+- 数据记录：保存文件名和 OSS URL 到 JSON 文件，便于管理和追踪
+- 异步上传：使用 oss2 SDK 异步上传，性能优异
 
 ### 4. 数据模型与验证
 
@@ -397,47 +401,61 @@ CREATE TABLE uploaded_images (
 | DB_PASSWORD | 数据库密码 | 2K!Yw0V^ulAsll |
 | DB_NAME | 数据库名称 | wbyemtvy |
 
-### 图床配置
+### 阿里云 OSS 配置
 
-| 变量名 | 说明 | 默认值 | 必填 |
-|--------|------|--------|------|
-| IMAGE_BED_TYPE | 图床类型 (smms/imgbb/imgur) | smms | 否 |
-| IMAGE_BED_API_KEY | 图床 API 密钥 | - | 视图床而定 |
+| 变量名 | 说明 | 必填 |
+|--------|------|------|
+| OSS_ACCESS_KEY_ID | AccessKey ID | 是 |
+| OSS_ACCESS_KEY_SECRET | AccessKey Secret | 是 |
+| OSS_ENDPOINT | OSS 地域节点 | 是 |
+| OSS_BUCKET_NAME | Bucket 名称 | 是 |
+| OSS_BASE_URL | 自定义域名（CDN） | 否 |
+| OSS_UPLOAD_DIR | 上传目录 | 否（默认：sweet-album/） |
 
-### 图床服务说明
+### 阿里云 OSS 配置说明
 
-#### 1. SM.MS（推荐，默认）
-- **优点**: 免费、无需注册即可使用、稳定
-- **限制**: 未注册用户有上传限制
-- **API Key**: 可选（注册后可获取，提升限制）
-- **官网**: https://sm.ms/
-- **配置示例**:
-  ```bash
-  IMAGE_BED_TYPE=smms
-  IMAGE_BED_API_KEY=  # 可选
-  ```
+#### 快速配置（推荐）
 
-#### 2. ImgBB
-- **优点**: 免费、界面友好
-- **限制**: 需要注册，每月有上传限制
-- **API Key**: 必填
-- **官网**: https://api.imgbb.com/
-- **配置示例**:
-  ```bash
-  IMAGE_BED_TYPE=imgbb
-  IMAGE_BED_API_KEY=your_imgbb_api_key
-  ```
+使用配置向导快速设置：
 
-#### 3. Imgur
-- **优点**: 老牌图床、稳定
-- **限制**: 需要注册，有速率限制
-- **API Key**: 必填（Client ID）
-- **官网**: https://api.imgur.com/
-- **配置示例**:
-  ```bash
-  IMAGE_BED_TYPE=imgur
-  IMAGE_BED_API_KEY=your_imgur_client_id
-  ```
+```bash
+# Windows 系统
+setup_oss.bat
+
+# 按照提示输入配置信息即可
+```
+
+#### 手动配置
+
+1. **复制配置文件**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **编辑 .env 文件**
+   ```bash
+   OSS_ACCESS_KEY_ID=your_access_key_id
+   OSS_ACCESS_KEY_SECRET=your_access_key_secret
+   OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
+   OSS_BUCKET_NAME=your_bucket_name
+   OSS_BASE_URL=  # 可选，如果配置了 CDN
+   OSS_UPLOAD_DIR=sweet-album/
+   ```
+
+3. **获取配置信息**
+   - 登录阿里云控制台：https://oss.console.aliyun.com/
+   - 创建 Bucket（权限设置为"公共读"）
+   - 获取 AccessKey：https://ram.console.aliyun.com/manage/ak
+   - 记录 Endpoint（例如：oss-cn-hangzhou.aliyuncs.com）
+
+#### 详细配置指南
+
+查看 [OSS_CONFIG.md](OSS_CONFIG.md) 获取完整的配置指南，包括：
+- 如何创建 OSS Bucket
+- 如何获取 AccessKey
+- 如何配置 CDN 加速
+- 常见问题解决
+- 费用说明
 
 ### 配置方法
 
