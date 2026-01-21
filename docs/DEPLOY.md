@@ -19,7 +19,7 @@ git remote add origin https://github.com/你的用户名/sweet-album.git
 git push -u origin main
 
 # 2. 在 GitHub 仓库设置中启用 Pages
-# Settings → Pages → Source: main branch → /static 目录
+# Settings → Pages → Source: main branch → / (root)
 ```
 
 访问地址：`https://你的用户名.github.io/sweet-album/`
@@ -34,7 +34,7 @@ git push -u origin main
 
 1. 访问 https://vercel.com
 2. 导入 GitHub 仓库
-3. 设置根目录为 `static`
+3. 直接部署（根目录）
 4. 点击部署
 
 ---
@@ -44,7 +44,7 @@ git push -u origin main
 **优点**：功能强大、支持表单处理
 
 1. 访问 https://netlify.com
-2. 拖拽 `static` 文件夹到网页
+2. 拖拽整个项目文件夹到网页
 3. 自动部署完成
 
 ---
@@ -55,7 +55,7 @@ git push -u origin main
 
 1. 访问 https://pages.cloudflare.com
 2. 连接 GitHub 仓库
-3. 设置构建目录为 `static`
+3. 直接部署（根目录）
 4. 部署
 
 ---
@@ -66,7 +66,6 @@ git push -u origin main
 
 ```bash
 # 1. 复制配置文件
-cd static
 cp config.example.js config.js
 
 # 2. 编辑 config.js，填入你的 OSS 配置
@@ -100,14 +99,15 @@ window.APP_CONFIG = {
 
 ```
 sweet-album/
-├── static/              # 静态文件目录
-│   ├── index.html      # 主页面
-│   ├── main.js         # 核心逻辑
-│   ├── style.css       # 样式文件
-│   ├── config.example.js  # 配置模板
-│   └── config.js       # 实际配置（不提交）
+├── index.html          # 主页面
+├── main.js             # 核心逻辑
+├── style.css           # 样式文件
+├── config.example.js   # 配置模板
+├── config.js           # 实际配置（不提交）
+├── docs/               # 文档目录
+│   ├── DEPLOY.md      # 部署指南
+│   └── STATIC_DEPLOY.md  # 详细部署指南
 ├── README.md           # 项目说明
-├── STATIC_DEPLOY.md    # 详细部署指南
 └── start_static.bat    # 本地预览脚本
 ```
 
@@ -120,7 +120,6 @@ sweet-album/
 start_static.bat
 
 # Mac/Linux
-cd static
 python3 -m http.server 8080
 ```
 

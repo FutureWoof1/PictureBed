@@ -7,7 +7,7 @@
 .DS_Store
 
 # 静态网页配置（包含 OSS 密钥，不要提交）
-static/config.js
+config.js
 
 # 日志文件
 *.log

@@ -11,13 +11,13 @@
 - ✅ 使用 localStorage 存储数据
 - ✅ 支持阿里云 OSS 图片上传
 - ✅ 可部署到 GitHub Pages、Vercel、Netlify
-- 📖 [查看部署文档](STATIC_DEPLOY.md)
+- 📖 [查看部署文档](docs/STATIC_DEPLOY.md)
 
 ### 2. Python 后端版本
 - 使用 FastAPI 后端
 - 使用 JSON 文件存储数据
 - 支持阿里云 OSS 图片上传
-- 📖 [查看部署文档](DEPLOY.md)
+- 📖 [查看部署文档](docs/DEPLOY.md)
 
 ---
 
@@ -25,15 +25,14 @@
 
 ### 方式一：直接打开（本地测试）
 
-1. 进入 `static` 目录
-2. 双击打开 `index.html`（或使用本地服务器）
+1. 双击打开 `index.html`（或使用本地服务器）
 
 ### 方式二：部署到 GitHub Pages
 
 ```bash
 # 1. 配置 OSS（可选）
-cp static/config.example.js static/config.js
-# 编辑 static/config.js，填入你的 OSS 配置
+cp config.example.js config.js
+# 编辑 config.js，填入你的 OSS 配置
 
 # 2. 推送到 GitHub
 git init
@@ -43,10 +42,10 @@ git remote add origin https://github.com/你的用户名/sweet-album.git
 git push -u origin main
 
 # 3. 在 GitHub 仓库设置中启用 Pages
-# Settings → Pages → Source: main → Folder: /static
+# Settings → Pages → Source: main → Folder: / (root)
 ```
 
-详细部署教程请查看 [STATIC_DEPLOY.md](STATIC_DEPLOY.md)
+详细部署教程请查看 [docs/STATIC_DEPLOY.md](docs/STATIC_DEPLOY.md)
 
 ---
 
@@ -85,16 +84,14 @@ git push -u origin main
 
 ```
 picture/
-├── static/                    # 静态文件（纯前端版本）
-│   ├── index.html            # 主页面
-│   ├── main.js               # 主逻辑
-│   ├── style.css             # 样式
-│   ├── config.js             # 配置文件（不提交）
-│   └── config.example.js     # 配置示例
-├── main.py                   # Python 后端（可选）
-├── requirements.txt          # Python 依赖
-├── STATIC_DEPLOY.md          # 静态版本部署文档
-├── DEPLOY.md                 # Python 版本部署文档
+├── index.html                # 主页面
+├── main.js                   # 主逻辑
+├── style.css                 # 样式
+├── config.js                 # 配置文件（不提交）
+├── config.example.js         # 配置示例
+├── docs/                     # 文档目录
+│   ├── STATIC_DEPLOY.md     # 静态版本部署文档
+│   └── DEPLOY.md            # Python 版本部署文档
 └── README.md                 # 本文档
 ```
 
@@ -108,10 +105,10 @@ picture/
 
 1. 复制配置文件：
 ```bash
-cp static/config.example.js static/config.js
+cp config.example.js config.js
 ```
 
-2. 编辑 `static/config.js`：
+2. 编辑 `config.js`：
 ```javascript
 const OSS_CONFIG = {
     region: 'oss-cn-beijing',
@@ -133,13 +130,13 @@ const LOVE_START_DATE = '2022-10-15';
 ## 🎨 自定义
 
 ### 修改恋爱开始日期
-编辑 `static/config.js` 中的 `LOVE_START_DATE`
+编辑 `config.js` 中的 `LOVE_START_DATE`
 
 ### 修改页面标题
-编辑 `static/index.html` 中的 `<title>` 和页面标题
+编辑 `index.html` 中的 `<title>` 和页面标题
 
 ### 修改样式
-编辑 `static/style.css`，自定义颜色、字体等
+编辑 `style.css`，自定义颜色、字体等
 
 ---
 
@@ -159,7 +156,7 @@ const LOVE_START_DATE = '2022-10-15';
 
 ## 🔐 安全建议
 
-1. **不要将 `static/config.js` 提交到公开仓库**
+1. **不要将 `config.js` 提交到公开仓库**
    - 已在 `.gitignore` 中排除
    - 包含 OSS 密钥，需要保密
 
@@ -193,7 +190,7 @@ const LOVE_START_DATE = '2022-10-15';
 | **Netlify** | 功能强大 | 需要注册账号 |
 | **Cloudflare Pages** | 全球 CDN | 需要注册账号 |
 
-详细部署教程请查看 [STATIC_DEPLOY.md](STATIC_DEPLOY.md)
+详细部署教程请查看 [docs/STATIC_DEPLOY.md](docs/STATIC_DEPLOY.md)
 
 ---
 
@@ -210,11 +207,11 @@ const LOVE_START_DATE = '2022-10-15';
 - 不要清除浏览器缓存
 
 ### 3. GitHub Pages 404？
-- 确保设置为 `/static` 目录
+- 确保设置为 `/` (root) 目录
 - 等待几分钟让部署完成
 - 检查文件路径是否正确
 
-更多问题请查看 [STATIC_DEPLOY.md](STATIC_DEPLOY.md)
+更多问题请查看 [docs/STATIC_DEPLOY.md](docs/STATIC_DEPLOY.md)
 
 ---
 

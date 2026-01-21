@@ -12,7 +12,6 @@ echo.
 echo 正在启动...
 echo.
 
-cd static
 start index.html
 
 echo.
