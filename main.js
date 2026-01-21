@@ -294,6 +294,7 @@ class CounterManager {
     }
 
     init() {
+        console.log('⏰ 初始化计数器，开始日期:', this.startDate);
         this.updateCounter();
         this.interval = setInterval(() => {
             this.updateCounter();
@@ -314,7 +315,11 @@ class CounterManager {
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
 
-        if (daysEl) daysEl.textContent = days;
+        if (daysEl) {
+            daysEl.textContent = days;
+        } else {
+            console.error('❌ 找不到 #days 元素');
+        }
         if (hoursEl) hoursEl.textContent = hours;
         if (minutesEl) minutesEl.textContent = minutes;
         if (secondsEl) secondsEl.textContent = seconds;
@@ -340,9 +345,14 @@ class UIManager {
 
     // 模态框管理
     openModal(modalId) {
+        console.log('📂 打开模态框:', modalId);
         const modal = document.getElementById(modalId);
+        console.log('modal 元素:', modal);
         if (modal) {
             modal.classList.add('active');
+            console.log('✅ 模态框已打开');
+        } else {
+            console.error('❌ 找不到模态框:', modalId);
         }
     }
 
@@ -785,16 +795,26 @@ class App {
         const addMemoryBtn = document.getElementById('addMemoryBtn');
         const addAnniversaryBtn = document.getElementById('addAnniversaryBtn');
 
+        console.log('🔗 绑定事件...');
+        console.log('addMemoryBtn:', addMemoryBtn);
+        console.log('addAnniversaryBtn:', addAnniversaryBtn);
+
         if (addMemoryBtn) {
             addMemoryBtn.addEventListener('click', () => {
+                console.log('🎯 点击了记录甜蜜瞬间按钮');
                 this.ui.openModal('memoryModal');
             });
+        } else {
+            console.error('❌ 找不到 #addMemoryBtn 元素');
         }
 
         if (addAnniversaryBtn) {
             addAnniversaryBtn.addEventListener('click', () => {
+                console.log('🎯 点击了添加纪念日按钮');
                 this.ui.openModal('anniversaryModal');
             });
+        } else {
+            console.error('❌ 找不到 #addAnniversaryBtn 元素');
         }
 
         document.querySelectorAll('.modal-close').forEach(btn => {
@@ -1009,6 +1029,19 @@ class App {
 }
 
 // 启动应用
-document.addEventListener('DOMContentLoaded', () => {
+function startApp() {
+    console.log('🚀 启动应用...');
+    console.log('📝 配置信息:', {
+        ossConfig: window.OSS_CONFIG,
+        loveStartDate: window.LOVE_START_DATE
+    });
     new App();
-});
+}
+
+// 确保 DOM 加载完成后再启动
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+} else {
+    // DOM 已经加载完成，直接启动
+    startApp();
+}
