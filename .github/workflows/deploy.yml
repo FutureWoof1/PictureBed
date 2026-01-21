@@ -3,7 +3,7 @@ name: 部署到 GitHub Pages
 on:
   push:
     branches:
-      - main  # 当推送到 main 分支时触发
+      - StaticHtml # 当推送到 main 分支时触发
   workflow_dispatch:  # 允许手动触发
 
 # 设置 GITHUB_TOKEN 的权限
@@ -35,8 +35,8 @@ jobs:
               accessKeyId: '${{ secrets.OSS_ACCESS_KEY_ID }}',
               accessKeySecret: '${{ secrets.OSS_ACCESS_KEY_SECRET }}',
               bucket: '${{ secrets.OSS_BUCKET }}',
-              uploadDir: '${{ secrets.OSS_UPLOAD_DIR || 'sweet-album/' }}',
-              dataFile: '${{ secrets.OSS_DATA_FILE || 'sweet-album/data.json' }}'
+              uploadDir: '${{ secrets.OSS_UPLOAD_DIR || 'PictureBed/' }}',
+              dataFile: '${{ secrets.OSS_DATA_FILE || 'PictureBed/data.json' }}'
           };
 
           // 恋爱开始日期配置
