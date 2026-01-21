@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置诊断页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 配置诊断页面</h1>
+    
+    <div class="section">
+        <h2>1. 检查配置文件加载</h2>
+        <div id="config-check"></div>
+    </div>
+    
+    <div class="section">
+        <h2>2. OSS 配置详情</h2>
+        <div id="oss-config"></div>
+    </div>
+    
+    <div class="section">
+        <h2>3. 恋爱开始日期</h2>
+        <div id="love-date"></div>
+    </div>
+    
+    <div class="section">
+        <h2>4. 文件加载测试</h2>
+        <button onclick="testConfigPublic()">测试 config.public.js</button>
+        <button onclick="testConfigLocal()">测试 config.js</button>
+        <div id="file-test"></div>
+    </div>
+    
+    <div class="section">
+        <h2>5. 控制台日志</h2>
+        <pre id="console-log"></pre>
+    </div>
+
+    <!-- 默认配置 -->
+    <script>
+        window.OSS_CONFIG = window.OSS_CONFIG || {
+            region: '',
+            accessKeyId: '',
+            accessKeySecret: '',
+            bucket: '',
+            uploadDir: 'PictureBed/',
+            dataFile: 'PictureBed/data.json'
+        };
+        window.LOVE_START_DATE = window.LOVE_START_DATE || '2022-10-15';
+    </script>
+    
+    <!-- 尝试加载配置文件 -->
+    <script src="config.public.js" onerror="console.log('❌ config.public.js 加载失败，尝试加载 config.js'); this.onerror=null; this.src='config.js';"></script>
+    
+    <script>
+        const logs = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push(`[${timestamp}] ${message}`);
+            updateConsoleLog();
+        }
+        
+        function updateConsoleLog() {
+            document.getElementById('console-log').textContent = logs.join('\n');
+        }
+        
+        // 检查配置
+        function checkConfig() {
+            const configCheck = document.getElementById('config-check');
+            
+            if (typeof window.OSS_CONFIG !== 'undefined') {
+                configCheck.innerHTML = '<p class="success">✅ window.OSS_CONFIG 已定义</p>';
+                log('✅ window.OSS_CONFIG 已定义', 'success');
+            } else {
+                configCheck.innerHTML = '<p class="error">❌ window.OSS_CONFIG 未定义</p>';
+                log('❌ window.OSS_CONFIG 未定义', 'error');
+                return;
+            }
+            
+            // 检查配置是否为空
+            const isEmpty = !window.OSS_CONFIG.region || 
+                          !window.OSS_CONFIG.accessKeyId || 
+                          !window.OSS_CONFIG.bucket;
+            
+            if (isEmpty) {
+                configCheck.innerHTML += '<p class="warning">⚠️ OSS 配置为空（使用默认值）</p>';
+                log('⚠️ OSS 配置为空', 'warning');
+            } else {
+                configCheck.innerHTML += '<p class="success">✅ OSS 配置已填充</p>';
+                log('✅ OSS 配置已填充', 'success');
+            }
+        }
+        
+        // 显示 OSS 配置
+        function showOSSConfig() {
+            const ossConfig = document.getElementById('oss-config');
+            
+            if (typeof window.OSS_CONFIG === 'undefined') {
+                ossConfig.innerHTML = '<p class="error">❌ 配置未加载</p>';
+                return;
+            }
+            
+            const config = {
+                region: window.OSS_CONFIG.region || '(空)',
+                accessKeyId: window.OSS_CONFIG.accessKeyId ? 
+                    window.OSS_CONFIG.accessKeyId.substring(0, 8) + '...' : '(空)',
+                accessKeySecret: window.OSS_CONFIG.accessKeySecret ? '***已设置***' : '(空)',
+                bucket: window.OSS_CONFIG.bucket || '(空)',
+                uploadDir: window.OSS_CONFIG.uploadDir || '(空)',
+                dataFile: window.OSS_CONFIG.dataFile || '(空)'
+            };
+            
+            ossConfig.innerHTML = '<pre>' + JSON.stringify(config, null, 2) + '</pre>';
+            log('OSS 配置: ' + JSON.stringify(config));
+        }
+        
+        // 显示恋爱日期
+        function showLoveDate() {
+            const loveDate = document.getElementById('love-date');
+            
+            if (typeof window.LOVE_START_DATE === 'undefined') {
+                loveDate.innerHTML = '<p class="error">❌ 恋爱开始日期未设置</p>';
+                log('❌ 恋爱开始日期未设置', 'error');
+            } else {
+                loveDate.innerHTML = `<p class="success">✅ 恋爱开始日期: ${window.LOVE_START_DATE}</p>`;
+                log(`✅ 恋爱开始日期: ${window.LOVE_START_DATE}`, 'success');
+            }
+        }
+        
+        // 测试文件加载
+        function testConfigPublic() {
+            const fileTest = document.getElementById('file-test');
+            fileTest.innerHTML = '<p>正在测试 config.public.js...</p>';
+            log('测试 config.public.js');
+            
+            fetch('config.public.js')
+                .then(response => {
+                    if (response.ok) {
+                        fileTest.innerHTML = '<p class="success">✅ config.public.js 存在且可访问</p>';
+                        log('✅ config.public.js 存在', 'success');
+                        return response.text();
+                    } else {
+                        fileTest.innerHTML = `<p class="error">❌ config.public.js 不存在 (${response.status})</p>`;
+                        log(`❌ config.public.js 不存在 (${response.status})`, 'error');
+                    }
+                })
+                .then(text => {
+                    if (text) {
+                        fileTest.innerHTML += '<pre>' + text + '</pre>';
+                    }
+                })
+                .catch(error => {
+                    fileTest.innerHTML = `<p class="error">❌ 加载失败: ${error.message}</p>`;
+                    log(`❌ 加载 config.public.js 失败: ${error.message}`, 'error');
+                });
+        }
+        
+        function testConfigLocal() {
+            const fileTest = document.getElementById('file-test');
+            fileTest.innerHTML = '<p>正在测试 config.js...</p>';
+            log('测试 config.js');
+            
+            fetch('config.js')
+                .then(response => {
+                    if (response.ok) {
+                        fileTest.innerHTML = '<p class="success">✅ config.js 存在且可访问</p>';
+                        log('✅ config.js 存在', 'success');
+                        return response.text();
+                    } else {
+                        fileTest.innerHTML = `<p class="error">❌ config.js 不存在 (${response.status})</p>`;
+                        log(`❌ config.js 不存在 (${response.status})`, 'error');
+                    }
+                })
+                .then(text => {
+                    if (text) {
+                        fileTest.innerHTML += '<pre>' + text + '</pre>';
+                    }
+                })
+                .catch(error => {
+                    fileTest.innerHTML = `<p class="error">❌ 加载失败: ${error.message}</p>`;
+                    log(`❌ 加载 config.js 失败: ${error.message}`, 'error');
+                });
+        }
+        
+        // 页面加载完成后执行检查
+        window.addEventListener('load', function() {
+            log('页面加载完成');
+            setTimeout(() => {
+                checkConfig();
+                showOSSConfig();
+                showLoveDate();
+            }, 500);
+        });
+        
+        // 记录脚本加载
+        log('诊断脚本已加载');
+    </script>
+</body>
+</html>
