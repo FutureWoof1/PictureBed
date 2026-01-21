@@ -153,6 +153,21 @@ class StorageManager {
         return memory;
     }
 
+    async updateMemory(id, updatedMemory) {
+        const memories = this.getMemories();
+        const index = memories.findIndex(m => m.id === id);
+        if (index !== -1) {
+            memories[index] = { ...memories[index], ...updatedMemory, id };
+            localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(memories));
+            
+            // 同步到 OSS
+            if (this.syncEnabled) {
+                await this.saveToOSS();
+            }
+        }
+        return memories[index];
+    }
+
     async deleteMemory(id) {
         const memories = this.getMemories().filter(m => m.id !== id);
         localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(memories));
@@ -180,6 +195,21 @@ class StorageManager {
         }
         
         return anniversary;
+    }
+
+    async updateAnniversary(id, updatedAnniversary) {
+        const anniversaries = this.getAnniversaries();
+        const index = anniversaries.findIndex(a => a.id === id);
+        if (index !== -1) {
+            anniversaries[index] = { ...anniversaries[index], ...updatedAnniversary, id };
+            localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(anniversaries));
+            
+            // 同步到 OSS
+            if (this.syncEnabled) {
+                await this.saveToOSS();
+            }
+        }
+        return anniversaries[index];
     }
 
     async deleteAnniversary(id) {
@@ -332,6 +362,8 @@ class UIManager {
             memory: [],
             anniversary: []
         };
+        this.editingId = null;  // 当前编辑的记录 ID
+        this.editingType = null;  // 当前编辑的类型（memory 或 anniversary）
     }
 
     // 模态框管理
@@ -359,11 +391,21 @@ class UIManager {
                 this.uploadedPhotos.memory = [];
                 const preview = document.getElementById('memoryPhotoPreview');
                 if (preview) preview.innerHTML = '';
+                this.editingId = null;
+                this.editingType = null;
+                // 重置标题
+                const modalTitle = document.querySelector('#memoryModal .modal-title');
+                if (modalTitle) modalTitle.textContent = '📝 记录甜蜜瞬间';
             }
             if (modalId === 'anniversaryModal') {
                 this.uploadedPhotos.anniversary = [];
                 const preview = document.getElementById('anniversaryPhotoPreview');
                 if (preview) preview.innerHTML = '';
+                this.editingId = null;
+                this.editingType = null;
+                // 重置标题
+                const modalTitle = document.querySelector('#anniversaryModal .modal-title');
+                if (modalTitle) modalTitle.textContent = '🎊 添加纪念日';
             }
         }
     }
@@ -517,6 +559,9 @@ class UIManager {
             
             return `
                 <div class="memory-card" data-id="${memory.id}">
+                    <button class="memory-edit" data-id="${memory.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button class="memory-delete" data-id="${memory.id}">
                         <i class="fas fa-times"></i>
                     </button>
@@ -536,6 +581,14 @@ class UIManager {
             btn.addEventListener('click', (e) => {
                 const id = parseInt(e.currentTarget.dataset.id);
                 this.deleteMemory(id);
+            });
+        });
+
+        // 绑定编辑事件
+        container.querySelectorAll('.memory-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.dataset.id);
+                this.editMemory(id);
             });
         });
 
@@ -576,8 +629,15 @@ class UIManager {
         };
 
         try {
-            await this.storage.addMemory(memory);
+            if (this.editingId) {
+                // 编辑模式
+                await this.storage.updateMemory(this.editingId, memory);
+            } else {
+                // 新增模式
+                await this.storage.addMemory(memory);
+            }
             this.uploadedPhotos.memory = [];
+            this.editingId = null;
             this.loadMemories();
             this.loadTimeline();
             this.closeModal('memoryModal');
@@ -585,6 +645,52 @@ class UIManager {
             console.error('保存失败:', error);
             alert('保存失败，请重试');
         }
+    }
+
+    editMemory(id) {
+        const memories = this.storage.getMemories();
+        const memory = memories.find(m => m.id === id);
+        if (!memory) return;
+
+        // 设置编辑模式
+        this.editingId = id;
+        this.editingType = 'memory';
+
+        // 填充表单
+        document.getElementById('memoryDate').value = memory.date;
+        document.getElementById('memoryTitle').value = memory.title;
+        document.getElementById('memoryContent').value = memory.content || '';
+        document.getElementById('memoryMood').value = memory.mood || '😊';
+
+        // 显示已有照片
+        this.uploadedPhotos.memory = memory.photos || [];
+        const preview = document.getElementById('memoryPhotoPreview');
+        if (preview && memory.photos && memory.photos.length > 0) {
+            preview.innerHTML = memory.photos.map(url => `
+                <div class="photo-preview-item">
+                    <img src="${url}" alt="预览">
+                    <button type="button" class="photo-preview-remove" data-url="${url}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // 重新绑定删除事件
+            preview.querySelectorAll('.photo-preview-remove').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const urlToRemove = e.currentTarget.dataset.url;
+                    this.uploadedPhotos.memory = this.uploadedPhotos.memory.filter(u => u !== urlToRemove);
+                    e.currentTarget.closest('.photo-preview-item').remove();
+                });
+            });
+        }
+
+        // 修改模态框标题
+        const modalTitle = document.querySelector('#memoryModal .modal-title');
+        if (modalTitle) modalTitle.textContent = '✏️ 编辑甜蜜瞬间';
+
+        // 打开模态框
+        this.openModal('memoryModal');
     }
 
     async deleteMemory(id) {
@@ -625,6 +731,9 @@ class UIManager {
             
             return `
                 <div class="anniversary-card" data-id="${anniversary.id}">
+                    <button class="anniversary-edit" data-id="${anniversary.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button class="anniversary-delete" data-id="${anniversary.id}">
                         <i class="fas fa-times"></i>
                     </button>
@@ -643,6 +752,14 @@ class UIManager {
             btn.addEventListener('click', (e) => {
                 const id = parseInt(e.currentTarget.dataset.id);
                 this.deleteAnniversary(id);
+            });
+        });
+
+        // 绑定编辑事件
+        container.querySelectorAll('.anniversary-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.dataset.id);
+                this.editAnniversary(id);
             });
         });
 
@@ -683,8 +800,15 @@ class UIManager {
         };
 
         try {
-            await this.storage.addAnniversary(anniversary);
+            if (this.editingId) {
+                // 编辑模式
+                await this.storage.updateAnniversary(this.editingId, anniversary);
+            } else {
+                // 新增模式
+                await this.storage.addAnniversary(anniversary);
+            }
             this.uploadedPhotos.anniversary = [];
+            this.editingId = null;
             this.loadAnniversaries();
             this.loadTimeline();
             this.closeModal('anniversaryModal');
@@ -692,6 +816,52 @@ class UIManager {
             console.error('保存失败:', error);
             alert('保存失败，请重试');
         }
+    }
+
+    editAnniversary(id) {
+        const anniversaries = this.storage.getAnniversaries();
+        const anniversary = anniversaries.find(a => a.id === id);
+        if (!anniversary) return;
+
+        // 设置编辑模式
+        this.editingId = id;
+        this.editingType = 'anniversary';
+
+        // 填充表单
+        document.getElementById('anniversaryDate').value = anniversary.date;
+        document.getElementById('anniversaryName').value = anniversary.name;
+        document.getElementById('anniversaryIcon').value = anniversary.icon || '💕';
+        document.getElementById('anniversaryDesc').value = anniversary.description || '';
+
+        // 显示已有照片
+        this.uploadedPhotos.anniversary = anniversary.photos || [];
+        const preview = document.getElementById('anniversaryPhotoPreview');
+        if (preview && anniversary.photos && anniversary.photos.length > 0) {
+            preview.innerHTML = anniversary.photos.map(url => `
+                <div class="photo-preview-item">
+                    <img src="${url}" alt="预览">
+                    <button type="button" class="photo-preview-remove" data-url="${url}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // 重新绑定删除事件
+            preview.querySelectorAll('.photo-preview-remove').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const urlToRemove = e.currentTarget.dataset.url;
+                    this.uploadedPhotos.anniversary = this.uploadedPhotos.anniversary.filter(u => u !== urlToRemove);
+                    e.currentTarget.closest('.photo-preview-item').remove();
+                });
+            });
+        }
+
+        // 修改模态框标题
+        const modalTitle = document.querySelector('#anniversaryModal .modal-title');
+        if (modalTitle) modalTitle.textContent = '✏️ 编辑纪念日';
+
+        // 打开模态框
+        this.openModal('anniversaryModal');
     }
 
     async deleteAnniversary(id) {
