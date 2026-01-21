@@ -6,7 +6,8 @@ const CONFIG = {
         accessKeyId: '',
         accessKeySecret: '',
         bucket: '',
-        uploadDir: 'sweet-album/'
+        uploadDir: 'sweet-album/',
+        dataFile: 'sweet-album/data.json'  // 数据文件路径
     },
     // 恋爱开始日期
     startDate: '2022-10-15'
@@ -17,22 +18,110 @@ if (typeof OSS_CONFIG !== 'undefined') {
     Object.assign(CONFIG.oss, OSS_CONFIG);
 }
 
-// 本地存储管理模块
+// 本地存储管理模块（支持 OSS 云端同步）
 class StorageManager {
     constructor() {
         this.KEYS = {
             MEMORIES: 'sweet_album_memories',
-            ANNIVERSARIES: 'sweet_album_anniversaries'
+            ANNIVERSARIES: 'sweet_album_anniversaries',
+            LAST_SYNC: 'sweet_album_last_sync'
         };
+        this.ossClient = null;
+        this.syncEnabled = false;
+        this.initOSS();
         this.initStorage();
     }
 
-    initStorage() {
-        if (!localStorage.getItem(this.KEYS.MEMORIES)) {
-            localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify([]));
+    // 初始化 OSS 客户端
+    initOSS() {
+        if (!CONFIG.oss.accessKeyId || !CONFIG.oss.bucket) {
+            console.warn('OSS 未配置，数据仅保存在本地浏览器');
+            return;
         }
-        if (!localStorage.getItem(this.KEYS.ANNIVERSARIES)) {
-            localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify([]));
+
+        if (typeof OSS !== 'undefined') {
+            this.ossClient = new OSS({
+                region: CONFIG.oss.region,
+                accessKeyId: CONFIG.oss.accessKeyId,
+                accessKeySecret: CONFIG.oss.accessKeySecret,
+                bucket: CONFIG.oss.bucket
+            });
+            this.syncEnabled = true;
+            console.log('✅ OSS 已配置，数据将自动同步到云端');
+        }
+    }
+
+    async initStorage() {
+        // 如果启用了 OSS 同步，先从云端加载数据
+        if (this.syncEnabled) {
+            try {
+                await this.loadFromOSS();
+                console.log('✅ 已从云端加载数据');
+            } catch (error) {
+                console.log('ℹ️ 云端暂无数据，使用本地数据');
+                // 如果云端没有数据，使用本地数据并上传到云端
+                if (!localStorage.getItem(this.KEYS.MEMORIES)) {
+                    localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify([]));
+                }
+                if (!localStorage.getItem(this.KEYS.ANNIVERSARIES)) {
+                    localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify([]));
+                }
+                await this.saveToOSS();
+            }
+        } else {
+            // 本地模式
+            if (!localStorage.getItem(this.KEYS.MEMORIES)) {
+                localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify([]));
+            }
+            if (!localStorage.getItem(this.KEYS.ANNIVERSARIES)) {
+                localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify([]));
+            }
+        }
+    }
+
+    // 从 OSS 加载数据
+    async loadFromOSS() {
+        if (!this.ossClient) return;
+
+        try {
+            const result = await this.ossClient.get(CONFIG.oss.dataFile);
+            const data = JSON.parse(result.content.toString());
+            
+            if (data.memories) {
+                localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(data.memories));
+            }
+            if (data.anniversaries) {
+                localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(data.anniversaries));
+            }
+            
+            localStorage.setItem(this.KEYS.LAST_SYNC, new Date().toISOString());
+        } catch (error) {
+            if (error.code !== 'NoSuchKey') {
+                console.error('从 OSS 加载数据失败:', error);
+            }
+            throw error;
+        }
+    }
+
+    // 保存数据到 OSS
+    async saveToOSS() {
+        if (!this.ossClient) return;
+
+        try {
+            const data = {
+                memories: this.getMemories(),
+                anniversaries: this.getAnniversaries(),
+                lastUpdate: new Date().toISOString()
+            };
+
+            const content = JSON.stringify(data, null, 2);
+            await this.ossClient.put(CONFIG.oss.dataFile, Buffer.from(content));
+            
+            localStorage.setItem(this.KEYS.LAST_SYNC, new Date().toISOString());
+            console.log('✅ 数据已同步到云端');
+        } catch (error) {
+            console.error('保存数据到 OSS 失败:', error);
+            throw error;
         }
     }
 
@@ -41,17 +130,28 @@ class StorageManager {
         return JSON.parse(localStorage.getItem(this.KEYS.MEMORIES) || '[]');
     }
 
-    addMemory(memory) {
+    async addMemory(memory) {
         const memories = this.getMemories();
         memory.id = Date.now();
         memories.push(memory);
         localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(memories));
+        
+        // 同步到 OSS
+        if (this.syncEnabled) {
+            await this.saveToOSS();
+        }
+        
         return memory;
     }
 
-    deleteMemory(id) {
+    async deleteMemory(id) {
         const memories = this.getMemories().filter(m => m.id !== id);
         localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(memories));
+        
+        // 同步到 OSS
+        if (this.syncEnabled) {
+            await this.saveToOSS();
+        }
     }
 
     // 纪念日
@@ -59,17 +159,43 @@ class StorageManager {
         return JSON.parse(localStorage.getItem(this.KEYS.ANNIVERSARIES) || '[]');
     }
 
-    addAnniversary(anniversary) {
+    async addAnniversary(anniversary) {
         const anniversaries = this.getAnniversaries();
         anniversary.id = Date.now();
         anniversaries.push(anniversary);
         localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(anniversaries));
+        
+        // 同步到 OSS
+        if (this.syncEnabled) {
+            await this.saveToOSS();
+        }
+        
         return anniversary;
     }
 
-    deleteAnniversary(id) {
+    async deleteAnniversary(id) {
         const anniversaries = this.getAnniversaries().filter(a => a.id !== id);
         localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(anniversaries));
+        
+        // 同步到 OSS
+        if (this.syncEnabled) {
+            await this.saveToOSS();
+        }
+    }
+
+    // 手动刷新数据（从云端重新加载）
+    async refresh() {
+        if (this.syncEnabled) {
+            await this.loadFromOSS();
+            return true;
+        }
+        return false;
+    }
+
+    // 获取最后同步时间
+    getLastSyncTime() {
+        const lastSync = localStorage.getItem(this.KEYS.LAST_SYNC);
+        return lastSync ? new Date(lastSync) : null;
     }
 
     // 导出数据
@@ -82,12 +208,17 @@ class StorageManager {
     }
 
     // 导入数据
-    importData(data) {
+    async importData(data) {
         if (data.memories) {
             localStorage.setItem(this.KEYS.MEMORIES, JSON.stringify(data.memories));
         }
         if (data.anniversaries) {
             localStorage.setItem(this.KEYS.ANNIVERSARIES, JSON.stringify(data.anniversaries));
+        }
+        
+        // 同步到 OSS
+        if (this.syncEnabled) {
+            await this.saveToOSS();
         }
     }
 }
@@ -416,7 +547,7 @@ class UIManager {
         });
     }
 
-    addMemory() {
+    async addMemory() {
         const date = document.getElementById('memoryDate').value;
         const title = document.getElementById('memoryTitle').value;
         const content = document.getElementById('memoryContent').value;
@@ -432,19 +563,29 @@ class UIManager {
             photos: this.uploadedPhotos.memory
         };
 
-        this.storage.addMemory(memory);
-        this.uploadedPhotos.memory = [];
-        this.loadMemories();
-        this.loadTimeline();
-        this.closeModal('memoryModal');
+        try {
+            await this.storage.addMemory(memory);
+            this.uploadedPhotos.memory = [];
+            this.loadMemories();
+            this.loadTimeline();
+            this.closeModal('memoryModal');
+        } catch (error) {
+            console.error('保存失败:', error);
+            alert('保存失败，请重试');
+        }
     }
 
-    deleteMemory(id) {
+    async deleteMemory(id) {
         if (!confirm('确定要删除这条记录吗？')) return;
 
-        this.storage.deleteMemory(id);
-        this.loadMemories();
-        this.loadTimeline();
+        try {
+            await this.storage.deleteMemory(id);
+            this.loadMemories();
+            this.loadTimeline();
+        } catch (error) {
+            console.error('删除失败:', error);
+            alert('删除失败，请重试');
+        }
     }
 
     // 纪念日
@@ -509,7 +650,7 @@ class UIManager {
         });
     }
 
-    addAnniversary() {
+    async addAnniversary() {
         const date = document.getElementById('anniversaryDate').value;
         const name = document.getElementById('anniversaryName').value;
         const icon = document.getElementById('anniversaryIcon').value;
@@ -525,19 +666,29 @@ class UIManager {
             photos: this.uploadedPhotos.anniversary
         };
 
-        this.storage.addAnniversary(anniversary);
-        this.uploadedPhotos.anniversary = [];
-        this.loadAnniversaries();
-        this.loadTimeline();
-        this.closeModal('anniversaryModal');
+        try {
+            await this.storage.addAnniversary(anniversary);
+            this.uploadedPhotos.anniversary = [];
+            this.loadAnniversaries();
+            this.loadTimeline();
+            this.closeModal('anniversaryModal');
+        } catch (error) {
+            console.error('保存失败:', error);
+            alert('保存失败，请重试');
+        }
     }
 
-    deleteAnniversary(id) {
+    async deleteAnniversary(id) {
         if (!confirm('确定要删除这个纪念日吗？')) return;
 
-        this.storage.deleteAnniversary(id);
-        this.loadAnniversaries();
-        this.loadTimeline();
+        try {
+            await this.storage.deleteAnniversary(id);
+            this.loadAnniversaries();
+            this.loadTimeline();
+        } catch (error) {
+            console.error('删除失败:', error);
+            alert('删除失败，请重试');
+        }
     }
 
     // 照片查看器
@@ -607,7 +758,10 @@ class App {
         this.init();
     }
 
-    init() {
+    async init() {
+        // 等待存储初始化完成
+        await this.storage.initStorage();
+        
         this.counter.init();
 
         this.ui.loadTimeline();
@@ -617,6 +771,7 @@ class App {
         this.bindEvents();
         this.initNavigation();
         this.addDataManagement();
+        this.addSyncStatus();
     }
 
     bindEvents() {
@@ -746,6 +901,11 @@ class App {
             const dataManageDiv = document.createElement('div');
             dataManageDiv.style.marginTop = '20px';
             dataManageDiv.innerHTML = `
+                ${this.storage.syncEnabled ? `
+                <button id="refreshDataBtn" style="margin: 5px; padding: 8px 16px; background: #00CED1; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-sync-alt"></i> 刷新数据
+                </button>
+                ` : ''}
                 <button id="exportDataBtn" style="margin: 5px; padding: 8px 16px; background: #8A2BE2; color: white; border: none; border-radius: 5px; cursor: pointer;">
                     <i class="fas fa-download"></i> 导出数据
                 </button>
@@ -755,6 +915,28 @@ class App {
                 <input type="file" id="importDataFile" accept=".json" style="display: none;">
             `;
             footer.insertBefore(dataManageDiv, footer.firstChild);
+
+            // 刷新数据（从云端重新加载）
+            if (this.storage.syncEnabled) {
+                document.getElementById('refreshDataBtn').addEventListener('click', async () => {
+                    const btn = document.getElementById('refreshDataBtn');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 刷新中...';
+                    
+                    try {
+                        await this.storage.refresh();
+                        this.ui.loadMemories();
+                        this.ui.loadAnniversaries();
+                        this.ui.loadTimeline();
+                        alert('数据已刷新！');
+                    } catch (error) {
+                        alert('刷新失败，请重试');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-sync-alt"></i> 刷新数据';
+                    }
+                });
+            }
 
             // 导出数据
             document.getElementById('exportDataBtn').addEventListener('click', () => {
@@ -773,15 +955,15 @@ class App {
                 document.getElementById('importDataFile').click();
             });
 
-            document.getElementById('importDataFile').addEventListener('change', (e) => {
+            document.getElementById('importDataFile').addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = (event) => {
+                    reader.onload = async (event) => {
                         try {
                             const data = JSON.parse(event.target.result);
                             if (confirm('确定要导入数据吗？这将覆盖当前所有数据！')) {
-                                this.storage.importData(data);
+                                await this.storage.importData(data);
                                 this.ui.loadMemories();
                                 this.ui.loadAnniversaries();
                                 this.ui.loadTimeline();
@@ -794,6 +976,27 @@ class App {
                     reader.readAsText(file);
                 }
             });
+        }
+    }
+
+    // 添加同步状态显示
+    addSyncStatus() {
+        if (!this.storage.syncEnabled) return;
+
+        const nav = document.querySelector('.nav');
+        if (nav) {
+            const syncStatus = document.createElement('div');
+            syncStatus.id = 'syncStatus';
+            syncStatus.style.cssText = 'position: fixed; top: 70px; right: 20px; padding: 8px 12px; background: rgba(0, 206, 209, 0.9); color: white; border-radius: 5px; font-size: 12px; z-index: 999;';
+            syncStatus.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> 云端同步已启用';
+            document.body.appendChild(syncStatus);
+
+            // 3秒后淡出
+            setTimeout(() => {
+                syncStatus.style.transition = 'opacity 1s';
+                syncStatus.style.opacity = '0';
+                setTimeout(() => syncStatus.remove(), 1000);
+            }, 3000);
         }
     }
 }
