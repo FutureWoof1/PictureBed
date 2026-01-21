@@ -30,17 +30,19 @@ jobs:
           # 创建配置文件
           cat > config.public.js << 'EOF'
           // 阿里云 OSS 配置（由 GitHub Actions 自动生成）
-          const OSS_CONFIG = {
+          window.OSS_CONFIG = {
               region: '${{ secrets.OSS_REGION }}',
               accessKeyId: '${{ secrets.OSS_ACCESS_KEY_ID }}',
               accessKeySecret: '${{ secrets.OSS_ACCESS_KEY_SECRET }}',
               bucket: '${{ secrets.OSS_BUCKET }}',
-              uploadDir: '${{ secrets.OSS_UPLOAD_DIR || 'PictureBed/' }}',
-              dataFile: '${{ secrets.OSS_DATA_FILE || 'PictureBed/data.json' }}'
+              uploadDir: '${{ secrets.OSS_UPLOAD_DIR || 'sweet-album/' }}',
+              dataFile: '${{ secrets.OSS_DATA_FILE || 'sweet-album/data.json' }}'
           };
 
           // 恋爱开始日期配置
-          const LOVE_START_DATE = '${{ secrets.LOVE_START_DATE || '2022-10-15' }}';
+          window.LOVE_START_DATE = '${{ secrets.LOVE_START_DATE || '2022-10-15' }}';
+          
+          console.log('✅ 配置已加载');
           EOF
           
           echo "✅ 配置文件已生成"

@@ -14,8 +14,15 @@ const CONFIG = {
 };
 
 // 从 config.js 加载配置（如果存在）
-if (typeof OSS_CONFIG !== 'undefined') {
-    Object.assign(CONFIG.oss, OSS_CONFIG);
+if (typeof window.OSS_CONFIG !== 'undefined' && window.OSS_CONFIG) {
+    Object.assign(CONFIG.oss, window.OSS_CONFIG);
+    console.log('✅ OSS 配置已加载:', CONFIG.oss);
+}
+
+// 从 LOVE_START_DATE 加载恋爱开始日期
+if (typeof window.LOVE_START_DATE !== 'undefined' && window.LOVE_START_DATE) {
+    CONFIG.startDate = window.LOVE_START_DATE;
+    console.log('✅ 恋爱开始日期已加载:', CONFIG.startDate);
 }
 
 // 本地存储管理模块（支持 OSS 云端同步）
