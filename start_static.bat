@@ -29,5 +29,6 @@ echo [配置 OSS]
 echo 1. 复制 config.example.js 为 config.js
 echo 2. 填入你的阿里云 OSS 配置
 echo.
+
 echo 按任意键退出...
 pause >nul
