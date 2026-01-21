@@ -242,7 +242,7 @@ class ImageUploader {
     initOSS() {
         // 检查是否配置了 OSS
         if (!CONFIG.oss.accessKeyId || !CONFIG.oss.bucket) {
-            console.warn('OSS 未配置，将使用 Base64 存储图片（不推荐用于生产环境）');
+            console.error('OSS 未配置，无法上传图片！请配置 OSS 后再使用图片上传功能。');
             return;
         }
 
@@ -258,13 +258,11 @@ class ImageUploader {
     }
 
     async uploadImage(file) {
-        // 如果配置了 OSS，使用 OSS 上传
-        if (this.ossClient) {
-            return await this.uploadToOSS(file);
+        // 只使用 OSS 上传
+        if (!this.ossClient) {
+            throw new Error('OSS 未配置，无法上传图片');
         }
-        
-        // 否则转换为 Base64（仅用于测试，不推荐生产环境）
-        return await this.convertToBase64(file);
+        return await this.uploadToOSS(file);
     }
 
     async uploadToOSS(file) {
@@ -276,15 +274,6 @@ class ImageUploader {
             console.error('OSS 上传失败:', error);
             throw new Error('图片上传失败');
         }
-    }
-
-    convertToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
     }
 }
 
@@ -572,14 +561,18 @@ class UIManager {
         const content = document.getElementById('memoryContent').value;
         const mood = document.getElementById('memoryMood').value;
 
-        if (!date || !title || !content || !mood) return;
+        // 只验证日期和标题是必填的
+        if (!date || !title) {
+            alert('请填写日期和标题');
+            return;
+        }
 
         const memory = {
             date,
             title,
-            content,
-            mood,
-            photos: this.uploadedPhotos.memory
+            content: content || '',  // 内容可选
+            mood: mood || '😊',  // 默认心情
+            photos: this.uploadedPhotos.memory || []
         };
 
         try {
@@ -675,14 +668,18 @@ class UIManager {
         const icon = document.getElementById('anniversaryIcon').value;
         const description = document.getElementById('anniversaryDesc').value;
 
-        if (!date || !name || !icon || !description) return;
+        // 只验证日期和名称是必填的
+        if (!date || !name) {
+            alert('请填写日期和纪念日名称');
+            return;
+        }
 
         const anniversary = {
             date,
             name,
-            icon,
-            description,
-            photos: this.uploadedPhotos.anniversary
+            icon: icon || '💕',  // 默认图标
+            description: description || '',  // 描述可选
+            photos: this.uploadedPhotos.anniversary || []
         };
 
         try {
