@@ -518,7 +518,7 @@ body::after {
     display: flex;
     flex-direction: row;           /* 水平排列：图片和标签并排 */
     align-items: center;           /* 垂直居中对齐 */
-    gap: 15px;                     /* 图片与标签的间距：可调整 */
+    gap: 8px;                      /* 图片与标签的间距：可调整 */
     
     /* 位置微调参数（默认未设置，可根据需要添加）*/
     /* margin-top: 0px;              上边距：向下移动容器 */
@@ -590,13 +590,13 @@ body::after {
    3. 如需调整方形图片在弧内的具体位置，可在下方添加 margin 或修改 transform
    ============================================ */
 
-/* 方形图片框 - 带轻微旋转 */
+/* 圆形图片框（偶数项） */
 .timeline-item:nth-child(even) .timeline-photo-frame {
-    width: 140px;                  /* 宽度：可调整（建议范围：100px-200px） */
-    height: 160px;                 /* 高度：可调整（建议范围：120px-220px） */
-    padding: 5px 5px 30px 5px;     /* 底部留白：模拟拍立得（可调整底部数值） */
-    border-radius: 2px;            /* 小圆角 */
-    transform: rotate(-2deg);      /* 向左旋转角度：可调整（-5deg 到 5deg） */
+    width: 180px;                  /* 宽度：可调整（建议范围：120px-250px） */
+    height: 180px;                 /* 高度：可调整（建议与宽度相同保持圆形） */
+    padding: 8px;                  /* 内边距：框架宽度 */
+    border-radius: 50%;            /* 圆形 */
+    border: 1px solid white;       /* 白色边框 */
     
     /* 位置微调参数（默认未设置，可根据需要添加）*/
     /* margin-right: 0px;            向左偏移：正值向左移动 */
@@ -604,20 +604,19 @@ body::after {
     /* 如需同时调整位置和旋转，使用：transform: rotate(-2deg) translate(0px, 0px); */
 }
 
-/* 方形图片框悬停效果 - 恢复正常角度 */
+/* 圆形图片框悬停效果 */
 .timeline-item:nth-child(even):hover .timeline-photo-frame {
-    transform: rotate(0deg) scale(1.05);  /* 恢复正常 + 放大 */
+    transform: scale(1.05);        /* 放大 */
 }
 
-/* 方形图片 */
+/* 圆形图片（偶数项） */
 .timeline-item:nth-child(even) .timeline-circle-image {
     width: 100%;
     height: 100%;
-    border-radius: 0;              /* 直角 */
+    border-radius: 50%;            /* 圆形 */
     object-fit: cover;             /* 裁剪填充 */
     transition: all 0.3s ease;
     background: linear-gradient(135deg, #ffd6e8, #c9b3ff);  /* 渐变背景 */
-    border: 1px solid #eee;        /* 浅灰边框 */
 }
 
 /* 图片悬停效果 */
@@ -1793,83 +1792,108 @@ body::after {
         padding: 3rem 0;               /* 从6rem 0缩小到3rem 0 */
     }
 
-    /* 大弧度曲线 - 缩小宽度 */
+    /* S曲线 - 保持正常显示，不压缩 */
     .timeline::before {
-        background-size: 700px auto;   /* 从1000px缩小到700px */
+        background-size: 1000px auto;  /* 保持1000px，与PC端一致，不压缩S曲线 */
     }
 
-    /* 时间轴事件项 - 调整高度和内边距 */
+    /* 时间轴事件项 - 保持高度对应弧度，调整嵌入位置 */
     .timeline-item {
-        height: 300px;                 /* 从400px缩小到300px */
+        height: 400px;                 /* 保持400px，对应一个完整的3/4圆弧 */
         margin-bottom: 0;              /* 保持无间距 */
-        padding-left: 10% !important;  /* 从15%调整到10% */
-        padding-right: 10% !important; /* 从15%调整到10% */
+    }
+    
+    /* 奇数项：嵌入左侧弧内 */
+    .timeline-item:nth-child(odd) {
+        padding-left: 15% !important;  /* 嵌入左侧弧内 */
+        padding-right: 0 !important;
+        padding-bottom: 20% !important; /* 调整垂直位置 */
+    }
+    
+    /* 偶数项：嵌入右侧弧内 */
+    .timeline-item:nth-child(even) {
+        padding-right: 15% !important; /* 嵌入右侧弧内 */
+        padding-left: 0 !important;
+        padding-bottom: 20% !important; /* 调整垂直位置 */
     }
 
-    /* 图片容器 - 调整为水平布局 */
+    /* 图片容器 - 保持水平布局 */
     .timeline-image-container {
         width: auto;                   /* 自适应宽度 */
         flex-direction: row;           /* 水平排列 */
-        gap: 10px;                     /* 缩小间距 */
+        gap: 8px;                      /* 缩小间距 */
+        align-items: center;           /* 垂直居中 */
     }
 
-    /* 圆形图片框 - 缩小尺寸 */
-    .timeline-item:nth-child(odd) .timeline-photo-frame {
-        width: 120px !important;       /* 从180px缩小到120px */
-        height: 120px !important;      /* 从180px缩小到120px */
-    }
-
-    /* 方形图片容器 - 缩小尺寸 */
-    .timeline-item:nth-child(even) .timeline-image-container {
-        width: 90px;                   /* 从160px缩小到90px */
-        padding: 6px 6px 20px 6px;     /* 缩小内边距 */
+    /* 圆形图片框 - 统一尺寸（奇数项和偶数项） */
+    .timeline-item:nth-child(odd) .timeline-photo-frame,
+    .timeline-item:nth-child(even) .timeline-photo-frame {
+        width: 100px !important;       /* 统一缩小到100px */
+        height: 100px !important;      /* 统一缩小到100px */
+        padding: 6px;                  /* 统一边框宽度 */
     }
 
     /* 标签 - 缩小字体和尺寸 */
     .timeline-flag {
-        font-size: 0.75rem;            /* 从1rem缩小到0.75rem */
-        padding: 4px 18px 4px 8px;     /* 缩小内边距 */
-        min-width: 100px;              /* 从140px缩小到100px */
+        font-size: 0.7rem;             /* 从1rem缩小到0.7rem */
+        padding: 4px 14px 4px 6px;     /* 缩小内边距 */
+        min-width: 80px;               /* 从140px缩小到80px */
+        max-width: 120px;              /* 限制最大宽度 */
+        white-space: nowrap;           /* 不换行 */
+        overflow: hidden;              /* 隐藏溢出 */
+        text-overflow: ellipsis;       /* 显示省略号 */
     }
     
-    /* 偶数项标签 - 调整内边距 */
+    /* 奇数项标签 - 燕尾朝右 */
+    .timeline-item:nth-child(odd) .timeline-flag {
+        padding: 4px 14px 4px 6px;     /* 右侧留白 */
+    }
+    
+    /* 偶数项标签 - 燕尾朝左 */
     .timeline-item:nth-child(even) .timeline-flag {
-        padding: 4px 8px 4px 18px;     /* 左侧留白 */
+        padding: 4px 6px 4px 14px;     /* 左侧留白 */
     }
     
     /* 日期标签 - 缩小字体 */
     .timeline-flag-date {
-        font-size: 0.8rem;             /* 从0.95rem缩小到0.8rem */
+        font-size: 0.65rem;            /* 从0.95rem缩小到0.65rem */
     }
     
     /* 标题标签 - 缩小字体 */
     .timeline-flag-title {
-        font-size: 0.9rem;             /* 从1.1rem缩小到0.9rem */
+        font-size: 0.75rem;            /* 从1.1rem缩小到0.75rem */
+    }
+    
+    /* 移动端标签不倾斜 */
+    .timeline-item:nth-child(odd) .timeline-flag-date,
+    .timeline-item:nth-child(odd) .timeline-flag-title,
+    .timeline-item:nth-child(even) .timeline-flag-date,
+    .timeline-item:nth-child(even) .timeline-flag-title {
+        transform: rotate(0deg) !important;  /* 移除倾斜 */
     }
 
-    /* 内容区域 - 缩小尺寸和位置 */
+    /* 内容区域 - 移动端隐藏（节省空间） */
     .timeline-content {
-        max-width: 220px;              /* 从280px缩小到220px */
-        padding: 0.8rem 1rem;          /* 从1rem 1.2rem缩小 */
-        top: 240px;                    /* 从280px调整到240px */
+        display: none;                 /* 移动端隐藏内容区域 */
     }
     
     /* 装饰元素已移除 */
     
     /* 表情徽章 - 调整到图片上角 */
     .timeline-badge {
-        top: -8px;                     /* 图片上角 */
-        font-size: 1.8rem;             /* 从2.5rem缩小到1.8rem */
+        top: -6px;                     /* 图片上角 */
+        font-size: 1.5rem;             /* 从2.5rem缩小到1.5rem */
+        z-index: 10;                   /* 确保在最上层 */
     }
     
     /* 奇数项：表情在左上角 */
     .timeline-item:nth-child(odd) .timeline-badge {
-        left: -8px;                    /* 左上角 */
+        left: -6px;                    /* 左上角 */
     }
     
     /* 偶数项：表情在右上角 */
     .timeline-item:nth-child(even) .timeline-badge {
-        right: -8px;                   /* 右上角 */
+        right: -6px;                   /* 右上角 */
         left: auto;                    /* 取消左侧定位 */
     }
 
