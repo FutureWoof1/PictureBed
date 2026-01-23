@@ -536,11 +536,10 @@ class UIManager {
                 <div class="timeline-item" data-id="${item.id}">
                     <div class="timeline-image-container">
                         <div class="timeline-labels" data-content-id="content-${item.type}-${item.id}">
-                            <div class="timeline-decorations"></div>
-                            <div class="timeline-badge">${item.displayIcon}</div>
                             <div class="timeline-flag timeline-flag-date">${this.formatDate(item.date)}</div>
                             <div class="timeline-flag timeline-flag-title">${this.escapeHtml(item.displayTitle)}</div>
                         </div>
+                        <div class="timeline-badge">${item.displayIcon}</div>
                         <div class="timeline-photo-frame" ${(item.photos && item.photos.length > 0) ? `data-has-photos="true"` : ''}>
                             <img src="${mainImage}" alt="${this.escapeHtml(item.displayTitle)}" class="timeline-circle-image" data-photos='${JSON.stringify(item.photos || [])}' data-index="0" data-title="${this.escapeHtml(item.displayTitle)}">
                         </div>

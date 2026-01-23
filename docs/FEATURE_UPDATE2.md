@@ -4,6 +4,70 @@
 
 ---
 
+## 2026-01-23 更新 15：强制应用 Patrick Hand 字体到所有元素 🔧
+
+### 问题描述
+即使添加了 Google Fonts 链接，网页中的文字仍然显示为黑体或宋体，Patrick Hand 字体未生效。
+
+### 问题原因
+CSS 中的通配符选择器 `*` 没有设置 `font-family`，导致某些元素不继承 body 的字体设置，而是使用浏览器默认字体。
+
+### 解决方案
+在通配符选择器 `*` 中添加 `font-family` 设置，强制所有元素使用 Patrick Hand 字体：
+
+```css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Patrick Hand', 'Indie Flower', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+```
+
+### 修复效果
+- ✅ 所有文字元素强制使用 Patrick Hand 字体
+- ✅ 包括标题、正文、按钮、输入框、弹窗等所有内容
+- ✅ 不再依赖继承，直接应用到每个元素
+- ✅ 解决了黑体和宋体显示的问题
+
+### 字体应用层级
+1. **通配符选择器 `*`**：强制所有元素使用 Patrick Hand（最高优先级）
+2. **body**：全局字体设置（备用）
+3. **特定元素**：表单、标签等特定元素的字体设置（增强）
+
+---
+
+## 2026-01-23 更新 14：修复字体加载问题 🔧
+
+### 问题描述
+网页中所有文字显示为黑体，Patrick Hand 手写字体未生效。
+
+### 问题原因
+index.html 中缺少 Google Fonts 的字体引入链接，导致浏览器无法加载 Patrick Hand 字体。
+
+### 解决方案
+在 `<head>` 标签中添加 Google Fonts CDN 链接：
+
+```html
+<!-- Google Fonts - Patrick Hand -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Indie+Flower&display=swap" rel="stylesheet">
+```
+
+### 修复效果
+- ✅ Patrick Hand 字体正常加载
+- ✅ 所有文字显示为手写风格
+- ✅ 保持温馨浪漫的视觉效果
+- ✅ 同时引入 Indie Flower 作为备用字体
+
+### 技术说明
+1. **preconnect**：提前建立与 Google Fonts 服务器的连接，加快字体加载速度
+2. **crossorigin**：允许跨域资源共享
+3. **display=swap**：字体加载期间先显示系统字体，加载完成后切换，避免文字闪烁
+
+---
+
 ## 2026-01-23 更新 12：时间轴交互和布局优化 🎯
 
 ### 优化目标
