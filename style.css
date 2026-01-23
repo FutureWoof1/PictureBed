@@ -212,6 +212,7 @@ body::after {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .nav-title {
@@ -225,6 +226,63 @@ body::after {
     display: flex;
     gap: 2rem;
     flex-wrap: wrap;
+}
+
+/* 导航栏认证按钮容器 */
+.nav-auth {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* 导航栏登录按钮 */
+.nav-login-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 10px rgba(255, 107, 157, 0.3);
+    transition: all 0.3s ease;
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive;
+}
+
+.nav-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+}
+
+.nav-login-btn i {
+    font-size: 1rem;
+}
+
+/* 导航栏退出按钮 */
+.nav-logout-btn {
+    background: rgba(255, 107, 157, 0.1);
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive;
+}
+
+.nav-logout-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
 }
 
 .nav-link {
@@ -1821,23 +1879,39 @@ body.readonly-mode #importDataBtn {
 
     /* ========== 导航栏适配 ========== */
     
-    /* 导航容器 - 垂直布局 */
+    /* 导航容器 - 保持水平布局 */
     .nav-container {
-        flex-direction: column;        /* 垂直排列 */
-        gap: 0.8rem;                   /* 间距 */
+        flex-wrap: wrap;               /* 允许换行 */
+        gap: 0.5rem;                   /* 间距 */
         padding: 0 1rem;               /* 左右内边距 */
     }
 
     /* 导航标题 - 缩小字体 */
     .nav-title {
         font-size: 1.2rem;             /* 从1.5rem缩小到1.2rem */
+        flex: 1 1 auto;                /* 占据剩余空间 */
     }
 
-    /* 导航链接 - 缩小间距和字体 */
+    /* 导航认证按钮容器 - 固定在右上角 */
+    .nav-auth {
+        order: 2;                      /* 排在第二位（标题后面） */
+        margin-left: auto;             /* 推到最右侧 */
+    }
+
+    /* 导航链接 - 独占一行 */
     .nav-links {
+        order: 3;                      /* 排在第三位（换行显示） */
+        flex-basis: 100%;              /* 占满整行 */
         gap: 0.8rem;                   /* 从2rem缩小到0.8rem */
         justify-content: center;       /* 居中对齐 */
         font-size: 0.9rem;             /* 缩小字体 */
+    }
+
+    /* 移动端登录按钮 - 缩小尺寸 */
+    .nav-login-btn,
+    .nav-logout-btn {
+        padding: 0.5rem 1rem;          /* 缩小内边距 */
+        font-size: 0.85rem;            /* 缩小字体 */
     }
 
     /* ========== 通用区块适配 ========== */

@@ -94,33 +94,42 @@ class AuthManager {
         this.removeReadonlyNotice();
     }
 
-    // 显示只读模式提示
+    // 显示只读模式提示（导航栏登录按钮）
     showReadonlyNotice() {
-        // 移除已存在的提示
-        this.removeReadonlyNotice();
+        const container = document.getElementById('navAuthContainer');
+        if (!container) return;
         
-        const notice = document.createElement('div');
-        notice.className = 'readonly-notice';
-        notice.id = 'readonlyNotice';
-        notice.innerHTML = `
-            <i class="fas fa-eye"></i>
-            <span>只读模式</span>
-            <button id="loginBtn">登录编辑</button>
+        container.innerHTML = `
+            <button class="nav-login-btn" id="navLoginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>登录编辑</span>
+            </button>
         `;
-        document.body.appendChild(notice);
 
         // 绑定登录按钮事件
-        document.getElementById('loginBtn').addEventListener('click', () => {
+        document.getElementById('navLoginBtn').addEventListener('click', () => {
             this.showAuthModal();
         });
     }
 
-    // 移除只读模式提示
+    // 移除只读模式提示（显示退出按钮）
     removeReadonlyNotice() {
-        const notice = document.getElementById('readonlyNotice');
-        if (notice) {
-            notice.remove();
-        }
+        const container = document.getElementById('navAuthContainer');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <button class="nav-logout-btn" id="navLogoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>退出编辑</span>
+            </button>
+        `;
+
+        // 绑定退出按钮事件
+        document.getElementById('navLogoutBtn').addEventListener('click', () => {
+            if (confirm('确定要退出编辑模式吗？')) {
+                this.logout();
+            }
+        });
     }
 
     // 显示认证模态框
