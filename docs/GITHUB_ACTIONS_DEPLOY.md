@@ -25,6 +25,7 @@
 | `OSS_ACCESS_KEY_ID` | AccessKey ID | `LTAI5t...` |
 | `OSS_ACCESS_KEY_SECRET` | AccessKey Secret | `QQ3I15...` |
 | `OSS_BUCKET` | Bucket 名称 | `picturebed0928` |
+| `EDIT_PASSWORD` | 编辑密码 | `your_password` |
 | `OSS_UPLOAD_DIR` | 上传目录（可选） | `PictureBed/` |
 | `OSS_DATA_FILE` | 数据文件路径（可选） | `PictureBed/data.json` |
 | `LOVE_START_DATE` | 恋爱开始日期（可选） | `2022-10-15` |
@@ -66,6 +67,11 @@ Secret: 你的 AccessKey Secret
 ```
 Name: OSS_BUCKET
 Secret: 你的 Bucket 名称
+```
+
+```
+Name: EDIT_PASSWORD
+Secret: 你的编辑密码（建议使用强密码）
 ```
 
 #### 可选的 Secrets（可以不添加，使用默认值）

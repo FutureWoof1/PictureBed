@@ -1,12 +1,12 @@
-# IDE
+# IDE 和编辑器
 .vscode/
 .idea/
 *.swp
-*.swo
+.swo
 *~
 .DS_Store
 
-# 静态网页配置（包含 OSS 密钥，不要提交）
+# 静态网页配置（包含 OSS 密钥，绝对不要提交）
 config.js
 config.public.js
 secrets.txt
@@ -20,3 +20,16 @@ test.html
 *.tmp
 *.bak
 *.cache
+
+# 系统文件
+Thumbs.db
+desktop.ini
+
+# 备份文件
+*.backup
+*.old
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
