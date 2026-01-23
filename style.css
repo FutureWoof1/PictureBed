@@ -1,148 +1,205 @@
-/* 全局样式 */
-@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Patrick+Hand&display=swap');
+/* ============================================
+   全局样式设置
+   ============================================ */
 
+/* 导入手写字体 - 中文手写字体（Ma Shan Zheng、ZCOOL XiaoWei、Long Cang） */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Long+Cang&display=swap');
+
+/* 重置所有元素的默认样式 */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    box-sizing: border-box; /* 让padding和border包含在宽高内 */
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'Long Cang', cursive, sans-serif; /* 强制所有元素使用中文手写字体 */
 }
 
+/* ============================================
+   CSS 变量定义 - 方便统一修改颜色和样式
+   ============================================ */
 :root {
-    --primary-color: #ff6b9d;
-    --secondary-color: #ffc2d1;
-    --accent-color: #ff8fab;
-    --text-dark: #333;
-    --text-light: #666;
-    --bg-light: #fff5f8;
-    --bg-white: #ffffff;
-    --shadow: 0 4px 20px rgba(255, 107, 157, 0.15);
-    --shadow-hover: 0 8px 30px rgba(255, 107, 157, 0.25);
-    --flag-blue: #89CFF0;
-    --flag-pink: #FFB7C5;
-    --flag-purple: #DDA0DD;
+    /* 主题色 - 粉色系 */
+    --primary-color: #ff6b9d;      /* 主色调：亮粉色 */
+    --secondary-color: #ffc2d1;    /* 次要色：浅粉色 */
+    --accent-color: #ff8fab;       /* 强调色：中粉色 */
+    
+    /* 文字颜色 */
+    --text-dark: #333;             /* 深色文字 */
+    --text-light: #666;            /* 浅色文字 */
+    
+    /* 背景色 */
+    --bg-light: #fff5f8;           /* 浅粉背景 */
+    --bg-white: #ffffff;           /* 白色背景 */
+    
+    /* 阴影效果 */
+    --shadow: 0 4px 20px rgba(255, 107, 157, 0.15);        /* 普通阴影 */
+    --shadow-hover: 0 8px 30px rgba(255, 107, 157, 0.25);  /* 悬停阴影 */
+    
+    /* 时间轴标签颜色 - 燕尾旗 */
+    --flag-blue: #89CFF0;          /* 天蓝色 */
+    --flag-pink: #FFB7C5;          /* 粉红色 */
+    --flag-purple: #DDA0DD;        /* 紫色 */
 }
 
+/* ============================================
+   Body 基础样式
+   ============================================ */
 body {
-    font-family: 'Patrick Hand', 'Indie Flower', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* 字体：优先使用中文手写字体 */
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'Long Cang', cursive, sans-serif;
+    
+    /* 文字颜色 */
     color: var(--text-dark);
-    background: linear-gradient(180deg, #ffd6e8 0%, #ffb3d9 15%, #ffc9e8 30%, #e8d4ff 50%, #c9e4ff 70%, #b3d9ff 85%, #d4f1ff 100%);
-    overflow-x: hidden;
-    line-height: 1.6;
+    
+    /* 背景：粉色到蓝色的渐变（从上到下） */
+    /* 可以修改这些颜色值来改变整体背景色调 */
+    background: linear-gradient(180deg, 
+        #ffd6e8 0%,    /* 顶部：浅粉 */
+        #ffb3d9 15%,   /* 粉色 */
+        #ffc9e8 30%,   /* 粉紫 */
+        #e8d4ff 50%,   /* 中部：淡紫 */
+        #c9e4ff 70%,   /* 淡蓝 */
+        #b3d9ff 85%,   /* 蓝色 */
+        #d4f1ff 100%   /* 底部：天蓝 */
+    );
+    
+    overflow-x: hidden;  /* 隐藏横向滚动条 */
+    line-height: 1.6;    /* 行高 */
     position: relative;
 }
 
-/* Kawaii背景装饰 - 云朵、星星、爱心 */
+/* ============================================
+   Kawaii 背景装饰 - 云朵、星星、爱心
+   ============================================ */
+
+/* 背景装饰容器 - 固定在页面上，不影响点击 */
 .hearts-background {
-    position: fixed;
+    position: fixed;           /* 固定定位，不随页面滚动 */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
-    z-index: 0;
+    pointer-events: none;      /* 不阻挡鼠标点击 */
+    z-index: 0;                /* 在最底层 */
     overflow: hidden;
 }
 
+/* 云朵装饰 - 左上角 */
 .hearts-background::before {
-    content: '☁️';
+    content: '☁️';              /* 云朵emoji */
     position: absolute;
-    font-size: 60px;
-    opacity: 0.3;
-    top: 15%;
-    left: 10%;
-    animation: floatCloud 20s infinite ease-in-out;
+    font-size: 60px;           /* 大小：可调整 */
+    opacity: 0.3;              /* 透明度：0-1 */
+    top: 15%;                  /* 位置：距顶部15% */
+    left: 10%;                 /* 位置：距左侧10% */
+    animation: floatCloud 20s infinite ease-in-out;  /* 漂浮动画 */
 }
 
+/* 星星装饰 - 右下角 */
 .hearts-background::after {
-    content: '✨';
+    content: '✨';              /* 星星emoji */
     position: absolute;
-    font-size: 40px;
-    opacity: 0.4;
-    top: 70%;
-    right: 15%;
-    animation: twinkle 3s infinite ease-in-out;
+    font-size: 40px;           /* 大小：可调整 */
+    opacity: 0.4;              /* 透明度：0-1 */
+    top: 70%;                  /* 位置：距顶部70% */
+    right: 15%;                /* 位置：距右侧15% */
+    animation: twinkle 3s infinite ease-in-out;  /* 闪烁动画 */
 }
 
-/* 云朵漂浮动画 */
+/* ============================================
+   动画定义
+   ============================================ */
+
+/* 云朵漂浮动画 - 模拟云朵在空中飘动 */
 @keyframes floatCloud {
     0%, 100% {
-        transform: translate(0, 0);
+        transform: translate(0, 0);           /* 起点和终点 */
     }
     25% {
-        transform: translate(30px, -20px);
+        transform: translate(30px, -20px);    /* 向右上移动 */
     }
     50% {
-        transform: translate(60px, 0);
+        transform: translate(60px, 0);        /* 向右移动 */
     }
     75% {
-        transform: translate(30px, 20px);
+        transform: translate(30px, 20px);     /* 向右下移动 */
     }
 }
 
-/* 星星闪烁动画 */
+/* 星星闪烁动画 - 透明度和大小变化 + 旋转 */
 @keyframes twinkle {
     0%, 100% {
-        opacity: 0.4;
-        transform: scale(1) rotate(0deg);
+        opacity: 0.4;                         /* 半透明 */
+        transform: scale(1) rotate(0deg);     /* 原始大小，不旋转 */
     }
     50% {
-        opacity: 0.8;
-        transform: scale(1.2) rotate(180deg);
+        opacity: 0.8;                         /* 更亮 */
+        transform: scale(1.2) rotate(180deg); /* 放大1.2倍，旋转180度 */
     }
 }
 
-/* 额外的装饰元素 */
+/* ============================================
+   Body 额外装饰元素
+   ============================================ */
+
+/* 爱心装饰 - 右侧中部 */
 body::before {
-    content: '💕';
+    content: '💕';              /* 爱心emoji */
     position: fixed;
-    font-size: 50px;
-    opacity: 0.25;
-    top: 40%;
-    right: 8%;
-    animation: floatHeart 15s infinite ease-in-out;
-    pointer-events: none;
-    z-index: 0;
+    font-size: 50px;           /* 大小：可调整 */
+    opacity: 0.25;             /* 透明度：0-1 */
+    top: 40%;                  /* 位置：距顶部40% */
+    right: 8%;                 /* 位置：距右侧8% */
+    animation: floatHeart 15s infinite ease-in-out;  /* 爱心漂浮动画 */
+    pointer-events: none;      /* 不阻挡点击 */
+    z-index: 0;                /* 在底层 */
 }
 
+/* 花朵装饰 - 左下角 */
 body::after {
-    content: '🌸';
+    content: '🌸';              /* 花朵emoji */
     position: fixed;
-    font-size: 45px;
-    opacity: 0.3;
-    bottom: 20%;
-    left: 12%;
-    animation: spin 25s infinite linear;
-    pointer-events: none;
-    z-index: 0;
+    font-size: 45px;           /* 大小：可调整 */
+    opacity: 0.3;              /* 透明度：0-1 */
+    bottom: 20%;               /* 位置：距底部20% */
+    left: 12%;                 /* 位置：距左侧12% */
+    animation: spin 25s infinite linear;  /* 旋转动画 */
+    pointer-events: none;      /* 不阻挡点击 */
+    z-index: 0;                /* 在底层 */
 }
 
+/* 爱心漂浮动画 - 上下浮动 + 轻微缩放 */
 @keyframes floatHeart {
     0%, 100% {
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1);        /* 原始位置和大小 */
     }
     50% {
-        transform: translateY(-40px) scale(1.1);
+        transform: translateY(-40px) scale(1.1);  /* 向上移动40px，放大1.1倍 */
     }
 }
 
+/* 旋转动画 - 360度旋转 */
 @keyframes spin {
     from {
-        transform: rotate(0deg);
+        transform: rotate(0deg);      /* 起始角度 */
     }
     to {
-        transform: rotate(360deg);
+        transform: rotate(360deg);    /* 结束角度：完整旋转一圈 */
     }
 }
 
-/* 导航栏 */
+/* ============================================
+   导航栏样式
+   ============================================ */
+
+/* 导航栏容器 - 顶部固定，半透明毛玻璃效果 */
 .nav-bar {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow);
-    position: sticky;
+    background: rgba(255, 255, 255, 0.95);  /* 白色半透明背景 */
+    backdrop-filter: blur(10px);            /* 毛玻璃模糊效果 */
+    box-shadow: var(--shadow);              /* 阴影 */
+    position: sticky;                       /* 粘性定位：滚动时固定在顶部 */
     top: 0;
-    z-index: 1000;
-    padding: 1rem 0;
+    z-index: 1000;                          /* 层级：在最上层 */
+    padding: 1rem 0;                        /* 上下内边距 */
 }
 
 .nav-container {
@@ -159,6 +216,7 @@ body::after {
     font-size: 1.5rem;
     color: var(--primary-color);
     font-weight: bold;
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive; /* 导航栏标题使用中文手写字体 */
 }
 
 .nav-links {
@@ -174,6 +232,7 @@ body::after {
     transition: all 0.3s ease;
     position: relative;
     padding: 0.5rem 0;
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive; /* 导航栏链接使用中文手写字体 */
 }
 
 .nav-link::after {
@@ -348,671 +407,824 @@ body::after {
     border-radius: 2px;
 }
 
-/* 时光轴 - Kawaii S形曲线样式 */
+/* ============================================
+   时光轴样式 - Kawaii S形曲线设计
+   ============================================ */
+
+/* 时光轴容器 */
 .timeline {
     position: relative;
-    padding: 6rem 0;
-    background: transparent;
-    overflow: visible;
-    min-height: 800px;
+    padding: 6rem 0;              /* 上下内边距 */
+    background: transparent;       /* 透明背景 */
+    overflow: visible;             /* 允许内容溢出 */
+    min-height: 800px;             /* 最小高度 */
 }
 
-/* S形曲线路径 - 使用SVG */
+/* S形曲线路径 - 使用SVG绘制白色曲线 */
+/* 修改要点：
+   - stroke='white' 可改变曲线颜色
+   - stroke-width='12' 可改变曲线粗细
+   - opacity='0.9' 可改变透明度
+*/
 .timeline::before {
     content: '';
     position: absolute;
-    left: 50%;
+    left: 50%;                     /* 居中对齐 */
     top: 0;
     width: 100%;
     height: 100%;
-    transform: translateX(-50%);
+    transform: translateX(-50%);   /* 居中偏移 */
+    /* SVG路径：绘制S形曲线 */
     background-image: url("data:image/svg+xml,%3Csvg width='800' height='100%25' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMin slice'%3E%3Cpath d='M 400 0 Q 200 150 400 300 T 400 600 T 400 900 T 400 1200 T 400 1500 T 400 1800 T 400 2100 T 400 2400 T 400 2700 T 400 3000' stroke='white' stroke-width='12' fill='none' stroke-linecap='round' opacity='0.9' filter='drop-shadow(0 4px 8px rgba(255,182,193,0.4))'/%3E%3C/svg%3E");
-    background-repeat: repeat-y;
+    background-repeat: repeat-y;   /* 纵向重复 */
     background-position: center top;
-    background-size: 800px auto;
-    pointer-events: none;
-    z-index: 1;
+    background-size: 800px auto;   /* 宽度800px，高度自适应 */
+    pointer-events: none;          /* 不阻挡点击 */
+    z-index: 1;                    /* 在底层 */
 }
 
+/* ============================================
+   时间轴事件项
+   ============================================ */
+
+/* 单个事件项 */
 .timeline-item {
     position: relative;
-    margin-bottom: 8rem;
-    animation: fadeIn 0.8s ease;
-    z-index: 2;
+    margin-bottom: 8rem;           /* 事件间距：可调整 */
+    animation: fadeIn 0.8s ease;   /* 淡入动画 */
+    z-index: 2;                    /* 在曲线之上 */
     display: flex;
-    justify-content: center;
+    justify-content: center;       /* 居中对齐 */
 }
 
-/* 交替左右布局 - 沿S曲线分布 */
+/* 交替左右布局 - 沿 S 曲线分布 */
+
+/* 奇数项：左侧对齐 */
 .timeline-item:nth-child(odd) {
-    justify-content: flex-start;
-    padding-left: 10%;
+    justify-content: flex-start;   /* 左对齐 */
+    padding-left: 10%;             /* 左内边距：可调整位置 */
 }
 
+/* 偶数项：右侧对齐 */
 .timeline-item:nth-child(even) {
-    justify-content: flex-end;
-    padding-right: 10%;
+    justify-content: flex-end;     /* 右对齐 */
+    padding-right: 10%;            /* 右内边距：可调整位置 */
 }
 
-/* 图片容器 - 圆形和方形交错 */
+/* ============================================
+   图片容器和框架样式
+   ============================================ */
+
+/* 图片容器 - 包含标签和图片 */
 .timeline-image-container {
     position: relative;
-    width: 200px;
-    flex-shrink: 0;
-    z-index: 3;
-    transition: all 0.3s ease;
+    width: 200px;                  /* 宽度：可调整 */
+    flex-shrink: 0;                /* 不缩小 */
+    z-index: 3;                    /* 在曲线之上 */
+    transition: all 0.3s ease;     /* 过渡动画 */
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;        /* 垂直排列 */
+    align-items: center;           /* 居中对齐 */
+    gap: 8px;                      /* 间距 */
 }
 
-/* 图片框样式 */
+/* 图片框架 - 白色边框 + 阴影 */
 .timeline-photo-frame {
-    background: white;
-    padding: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    background: white;             /* 白色背景 */
+    padding: 8px;                  /* 内边距：框架宽度 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);  /* 阴影 */
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    overflow: hidden;              /* 裁剪超出部分 */
+    cursor: pointer;               /* 鼠标样式：手型 */
+    transition: all 0.3s ease;     /* 过渡动画 */
 }
 
+/* 图片框架悬停效果 */
 .timeline-photo-frame:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+    transform: scale(1.05);        /* 放大1.05倍 */
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);  /* 粉色阴影 */
 }
 
-/* 圆形图片（奇数） */
+/* ============================================
+   圆形图片样式（奇数项）
+   ============================================ */
+
+/* 圆形图片框 */
 .timeline-item:nth-child(odd) .timeline-photo-frame {
-    border-radius: 50%;
-    width: 180px;
-    height: 180px;
-    border: 6px solid white;
+    border-radius: 50%;            /* 圆形 */
+    width: 180px;                  /* 宽度：可调整 */
+    height: 180px;                 /* 高度：可调整 */
+    border: 1px solid white;       /* 白色边框 */
 }
 
+/* 圆形图片 */
 .timeline-item:nth-child(odd) .timeline-circle-image {
     width: 100%;
     height: 100%;
-    border-radius: 30%;
-    object-fit: cover;
+    border-radius: 50%;            /* 圆角 */
+    object-fit: cover;             /* 裁剪填充 */
     transition: all 0.3s ease;
-    background: linear-gradient(135deg, #ffd6e8, #c9b3ff);
+    background: linear-gradient(135deg, #ffd6e8, #c9b3ff);  /* 渐变背景 */
 }
 
-/* 方形图片（偶数） - 拍立得风格 */
+/* ============================================
+   方形图片样式（偶数项）- 拍立得风格
+   ============================================ */
+
+/* 方形图片框 - 带轻微旋转 */
 .timeline-item:nth-child(even) .timeline-photo-frame {
-    width: 160px;
-    height: 190px;
-    padding: 8px 8px 35px 8px;
-    border-radius: 2px;
-    transform: rotate(-2deg);
+    width: 140px;                  /* 宽度：可调整 */
+    height: 160px;                 /* 高度：可调整 */
+    padding: 5px 5px 30px 5px;     /* 底部留白：模拟拍立得 */
+    border-radius: 2px;            /* 小圆角 */
+    transform: rotate(-2deg);      /* 向左旋转2度 */
 }
 
+/* 方形图片框悬停效果 - 恢复正常角度 */
 .timeline-item:nth-child(even):hover .timeline-photo-frame {
-    transform: rotate(0deg) scale(1.05);
+    transform: rotate(0deg) scale(1.05);  /* 恢复正常 + 放大 */
 }
 
+/* 方形图片 */
 .timeline-item:nth-child(even) .timeline-circle-image {
     width: 100%;
     height: 100%;
-    border-radius: 0;
-    object-fit: cover;
+    border-radius: 0;              /* 直角 */
+    object-fit: cover;             /* 裁剪填充 */
     transition: all 0.3s ease;
-    background: linear-gradient(135deg, #ffd6e8, #c9b3ff);
-    border: 1px solid #eee;
+    background: linear-gradient(135deg, #ffd6e8, #c9b3ff);  /* 渐变背景 */
+    border: 1px solid #eee;        /* 浅灰边框 */
 }
 
+/* 图片悬停效果 */
 .timeline-item:hover .timeline-circle-image {
-    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);  /* 粉色阴影 */
 }
 
-/* 手绘卡通装饰元素 - 放在标签组左侧 */
+/* ============================================
+   手绘卡通装饰元素 - 放在标签组左侧
+   ============================================ */
+
+/* 装饰元素容器 */
 .timeline-decorations {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 60px;                   /* 宽度：可调整 */
+    height: 60px;                  /* 高度：可调整 */
     top: 0;
-    left: -70px;
-    pointer-events: none;
-    z-index: 4;
+    left: -70px;                   /* 位置：标签组左侧70px */
+    pointer-events: none;          /* 不阻挡点击 */
+    z-index: 4;                    /* 在标签之上 */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* 装饰元素基础样式 */
 .timeline-decorations::before {
     position: absolute;
-    font-size: 2rem;
-    animation: float 4s ease-in-out infinite;
-    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+    font-size: 2rem;               /* 大小：可调整 */
+    animation: float 4s ease-in-out infinite;  /* 漂浮动画 */
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));  /* 阴影 */
 }
 
-/* 花朵装饰 */
+/* 不同事件项的装饰元素 - 循环使用4种 */
+
+/* 第1、第5、第9...项：花朵装饰 */
 .timeline-item:nth-child(4n+1) .timeline-decorations::before {
-    content: '🌸';
-    animation: float 4s ease-in-out infinite, spin 12s linear infinite;
+    content: '🌸';              /* 花朵emoji */
+    animation: float 4s ease-in-out infinite, spin 12s linear infinite;  /* 漂浮 + 旋转 */
 }
 
-/* 爱心装饰 */
+/* 第2、第6、第10...项：爱心装饰 */
 .timeline-item:nth-child(4n+2) .timeline-decorations::before {
-    content: '💕';
-    animation: float 3.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;
+    content: '💕';              /* 爱心emoji */
+    animation: float 3.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;  /* 漂浮 + 跳动 */
 }
 
-/* 云朵装饰 */
+/* 第3、第7、第11...项：云朵装饰 */
 .timeline-item:nth-child(4n+3) .timeline-decorations::before {
-    content: '☁️';
-    animation: floatCloud 5s ease-in-out infinite;
+    content: '☁️';              /* 云朵emoji */
+    animation: floatCloud 5s ease-in-out infinite;  /* 云朵漂浮 */
 }
 
-/* 星星装饰 */
+/* 第4、第8、第12...项：星星装饰 */
 .timeline-item:nth-child(4n) .timeline-decorations::before {
-    content: '✨';
-    animation: float 3s ease-in-out infinite, twinkle 2s ease-in-out infinite;
+    content: '✨';              /* 星星emoji */
+    animation: float 3s ease-in-out infinite, twinkle 2s ease-in-out infinite;  /* 漂浮 + 闪烁 */
 }
 
+/* 跳动动画 - 用于爱心 */
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.25); }
+    0%, 100% { 
+        transform: scale(1);       /* 原始大小 */
+    }
+    50% { 
+        transform: scale(1.25);    /* 放大1.25倍 */
+    }
 }
 
-/* 标签样式 - 燕尾旗样式，日期和标题分离 */
+/* ============================================
+   标签样式 - 燕尾旗设计，日期和标题分离
+   ============================================ */
+
+/* 标签组容器 - 整体可点击 */
 .timeline-labels {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    z-index: 4;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    flex-direction: column;        /* 垂直排列 */
+    align-items: center;           /* 居中对齐 */
+    gap: 5px;                      /* 间距 */
+    margin-bottom: 10px;           /* 下边距 */
+    z-index: 4;                    /* 层级 */
+    cursor: pointer;               /* 鼠标样式：手型 */
+    transition: all 0.3s ease;     /* 过渡动画 */
 }
 
+/* 标签组悬停效果 */
 .timeline-labels:hover {
-    transform: scale(1.02);
+    transform: scale(1.02);        /* 轻微放大 */
 }
 
+/* 燕尾旗基础样式 */
 .timeline-flag {
-    padding: 6px 25px 6px 12px;
-    color: white;
-    font-size: 1rem;
+    padding: 6px 25px 6px 12px;    /* 内边距：右侧留白做燕尾 */
+    color: white;                  /* 白色文字 */
+    font-size: 1rem;               /* 字体大小：可调整 */
     position: relative;
+    /* 燕尾形状：使用clip-path裁剪 */
     clip-path: polygon(0 0, 100% 0, 85% 50%, 100% 100%, 0 100%);
-    border-radius: 5px 0 0 5px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    min-width: 140px;
-    transition: all 0.3s ease;
-    font-family: 'Patrick Hand', cursive;
-    pointer-events: none;
+    border-radius: 5px 0 0 5px;    /* 左侧圆角 */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);  /* 阴影 */
+    text-align: center;            /* 文字居中 */
+    min-width: 140px;              /* 最小宽度：可调整 */
+    transition: all 0.3s ease;     /* 过渡动画 */
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive;  /* 中文手写字体 */
+    pointer-events: none;          /* 禁止单独点击，由标签组整体响应 */
 }
 
+/* 日期标签 - 在上方 */
 .timeline-flag-date {
-    font-weight: bold;
-    font-size: 0.95rem;
-    transform: rotate(-2deg);
+    font-weight: bold;             /* 粗体 */
+    font-size: 0.95rem;            /* 字体大小：可调整 */
+    transform: rotate(-2deg);      /* 向左倾旜2度 */
 }
 
+/* 标题标签 - 在下方 */
 .timeline-flag-title {
-    font-size: 1.1rem;
-    transform: rotate(2deg);
+    font-size: 1.1rem;             /* 字体大小：可调整 */
+    transform: rotate(2deg);       /* 向右倾旜2度 */
 }
 
-/* 旗帜颜色 - 循环使用 */
+/* ============================================
+   旗帜颜色 - 循环使用3种颜色
+   修改要点：可以修改 --flag-blue、--flag-pink、--flag-purple 变量
+   ============================================ */
+
+/* 第1、第4、第7...项：蓝色 */
 .timeline-item:nth-child(3n+1) .timeline-flag-date {
-    background-color: var(--flag-blue);
+    background-color: var(--flag-blue);  /* 天蓝色 */
 }
 
 .timeline-item:nth-child(3n+1) .timeline-flag-title {
-    background-color: var(--flag-blue);
-    opacity: 0.9;
+    background-color: var(--flag-blue);  /* 天蓝色 */
+    opacity: 0.9;                        /* 稍淡一些 */
 }
 
+/* 第2、第5、第8...项：粉色 */
 .timeline-item:nth-child(3n+2) .timeline-flag-date {
-    background-color: var(--flag-pink);
+    background-color: var(--flag-pink);  /* 粉红色 */
 }
 
 .timeline-item:nth-child(3n+2) .timeline-flag-title {
-    background-color: var(--flag-pink);
-    opacity: 0.9;
+    background-color: var(--flag-pink);  /* 粉红色 */
+    opacity: 0.9;                        /* 稍淡一些 */
 }
 
+/* 第3、第6、第9...项：紫色 */
 .timeline-item:nth-child(3n) .timeline-flag-date {
-    background-color: var(--flag-purple);
+    background-color: var(--flag-purple);  /* 紫色 */
 }
 
 .timeline-item:nth-child(3n) .timeline-flag-title {
-    background-color: var(--flag-purple);
-    opacity: 0.9;
+    background-color: var(--flag-purple);  /* 紫色 */
+    opacity: 0.9;                          /* 稍淡一些 */
 }
 
-/* 内容区域 - 可展开 */
+/* ============================================
+   内容区域 - 可展开/收起
+   ============================================ */
+
+/* 内容卡片 - 默认隐藏 */
 .timeline-content {
     position: absolute;
-    top: 280px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.95);
-    padding: 1rem 1.2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    max-width: 280px;
-    width: max-content;
-    min-width: 180px;
-    transition: all 0.3s ease;
-    z-index: 2;
-    display: none;
-    backdrop-filter: blur(10px);
-    font-family: 'Indie Flower', cursive;
+    top: 280px;                    /* 位置：距顶部280px，可调整 */
+    left: 50%;                     /* 居中 */
+    transform: translateX(-50%);   /* 居中偏移 */
+    background: rgba(255, 255, 255, 0.95);  /* 半透明白色背景 */
+    padding: 1rem 1.2rem;          /* 内边距：可调整 */
+    border-radius: 15px;           /* 圆角 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);  /* 阴影 */
+    max-width: 280px;              /* 最大宽度：可调整 */
+    width: max-content;            /* 宽度自适应内容 */
+    min-width: 180px;              /* 最小宽度：可调整 */
+    transition: all 0.3s ease;     /* 过渡动画 */
+    z-index: 2;                    /* 层级 */
+    display: none;                 /* 默认隐藏 */
+    backdrop-filter: blur(10px);   /* 毛玻璃效果 */
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive;  /* 中文手写字体 */
 }
 
+/* 展开状态 - 点击标签后显示 */
 .timeline-content.expanded {
-    display: block;
+    display: block;                /* 显示 */
 }
 
+/* 内容卡片悬停效果 */
 .timeline-content:hover {
-    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);  /* 粉色阴影 */
 }
 
-/* 日期和标题样式 */
+/* 内容区域内的文字样式 */
+
+/* 日期文字 */
 .timeline-date {
-    font-size: 0.75rem;
-    color: var(--text-light);
-    margin-bottom: 0.3rem;
-    font-weight: 500;
+    font-size: 0.75rem;            /* 字体大小：可调整 */
+    color: var(--text-light);      /* 浅灰色 */
+    margin-bottom: 0.3rem;         /* 下边距 */
+    font-weight: 500;              /* 字重 */
 }
 
+/* 标题文字 */
 .timeline-title {
-    font-size: 0.9rem;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    line-height: 1.3;
+    font-size: 0.9rem;             /* 字体大小：可调整 */
+    color: var(--text-dark);       /* 深色 */
+    margin-bottom: 0.5rem;         /* 下边距 */
+    font-weight: 600;              /* 字重 */
+    line-height: 1.3;              /* 行高 */
 }
 
+/* 描述文字 */
 .timeline-desc {
-    color: var(--text-light);
-    line-height: 1.5;
-    font-size: 0.85rem;
+    color: var(--text-light);      /* 浅灰色 */
+    line-height: 1.5;              /* 行高 */
+    font-size: 0.85rem;            /* 字体大小：可调整 */
 }
+
+/* ============================================
+   表情徽章 - 显示在标签组上方
+   ============================================ */
 
 .timeline-badge {
     position: absolute;
-    top: -70px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 2.5rem;
-    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
-    z-index: 5;
+    top: -70px;                    /* 位置：标签组上方70px，可调整 */
+    left: 50%;                     /* 居中 */
+    transform: translateX(-50%);   /* 居中偏移 */
+    font-size: 2.5rem;             /* 大小：可调整 */
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));  /* 阴影 */
+    z-index: 5;                    /* 在最上层 */
 }
+
+/* ============================================
+   删除按钮
+   ============================================ */
 
 .timeline-delete {
     position: absolute;
-    top: 0.5rem;
+    top: 0.5rem;                   /* 位置：右上角 */
     right: 0.5rem;
-    background: rgba(255, 107, 157, 0.2);
+    background: rgba(255, 107, 157, 0.2);  /* 淡粉色背景 */
     border: none;
-    color: var(--primary-color);
-    cursor: pointer;
-    font-size: 1rem;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    color: var(--primary-color);   /* 粉色文字 */
+    cursor: pointer;               /* 鼠标样式：手型 */
+    font-size: 1rem;               /* 字体大小 */
+    width: 28px;                   /* 宽度 */
+    height: 28px;                  /* 高度 */
+    border-radius: 50%;            /* 圆形 */
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
-    z-index: 10;
+    transition: all 0.3s ease;     /* 过渡动画 */
+    z-index: 10;                   /* 在最上层 */
 }
 
+/* 删除按钮悬停效果 */
 .timeline-delete:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: scale(1.1);
+    background: var(--primary-color);  /* 粉色背景 */
+    color: white;                  /* 白色文字 */
+    transform: scale(1.1);         /* 放大1.1倍 */
 }
 
+/* 淡入动画 - 用于事件项出现 */
 @keyframes fadeIn {
     from {
-        opacity: 0;
-        transform: translateY(20px);
+        opacity: 0;                    /* 完全透明 */
+        transform: translateY(20px);   /* 向下偏移20px */
     }
     to {
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 1;                    /* 完全不透明 */
+        transform: translateY(0);      /* 原始位置 */
     }
 }
 
-/* 甜蜜日常 */
+/* ============================================
+   甘蜜日常区域
+   ============================================ */
+
+/* 甘蜜日常网格布局 */
 .memories-grid {
     display: grid;
+    /* 自动填充：每列最小320px，最大占满剩余空间 */
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 2rem;                     /* 间距：可调整 */
+    margin-bottom: 2rem;           /* 下边距 */
 }
 
+/* 甘蜜日常卡片 */
 .memory-card {
-    background: var(--bg-white);
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    background: var(--bg-white);   /* 白色背景 */
+    border-radius: 15px;           /* 圆角：可调整 */
+    padding: 2rem;                 /* 内边距：可调整 */
+    box-shadow: var(--shadow);     /* 阴影 */
+    transition: all 0.3s ease;     /* 过渡动画 */
     position: relative;
-    animation: fadeIn 0.6s ease;
+    animation: fadeIn 0.6s ease;   /* 淡入动画 */
 }
 
+/* 卡片悬停效果 - 向上浮动 */
 .memory-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
+    transform: translateY(-5px);   /* 向上移动5px */
+    box-shadow: var(--shadow-hover);  /* 更深的阴影 */
 }
 
+/* 卡片头部 - 包含表情和日期 */
 .memory-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+    justify-content: space-between;  /* 两端对齐 */
+    align-items: center;             /* 垂直居中 */
+    margin-bottom: 1rem;             /* 下边距 */
 }
 
+/* 表情图标 */
 .memory-mood {
-    font-size: 2rem;
+    font-size: 2rem;                 /* 大小：可调整 */
 }
 
+/* 日期文字 */
 .memory-date {
-    color: var(--text-light);
-    font-size: 0.9rem;
+    color: var(--text-light);        /* 浅灰色 */
+    font-size: 0.9rem;               /* 字体大小：可调整 */
 }
 
+/* 标题 */
 .memory-title {
-    font-size: 1.3rem;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
+    font-size: 1.3rem;               /* 字体大小：可调整 */
+    color: var(--text-dark);         /* 深色 */
+    margin-bottom: 0.5rem;           /* 下边距 */
 }
 
+/* 内容文字 */
 .memory-content {
-    color: var(--text-light);
-    line-height: 1.6;
+    color: var(--text-light);        /* 浅灰色 */
+    line-height: 1.6;                /* 行高 */
 }
 
+/* 编辑和删除按钮 - 卡片右上角 */
 .memory-edit,
 .memory-delete {
     position: absolute;
-    top: 1rem;
-    background: none;
-    border: none;
-    color: var(--text-light);
-    cursor: pointer;
-    font-size: 1rem;
-    transition: color 0.3s ease;
-    z-index: 10;
+    top: 1rem;                       /* 位置：距顶部1rem */
+    background: none;                /* 透明背景 */
+    border: none;                    /* 无边框 */
+    color: var(--text-light);        /* 浅灰色 */
+    cursor: pointer;                 /* 鼠标样式：手型 */
+    font-size: 1rem;                 /* 字体大小 */
+    transition: color 0.3s ease;     /* 颜色过渡 */
+    z-index: 10;                     /* 在最上层 */
 }
 
+/* 编辑按钮位置 */
 .memory-edit {
-    right: 3rem;
+    right: 3rem;                     /* 距右侧3rem */
 }
 
+/* 编辑按钮悬停效果 */
 .memory-edit:hover {
-    color: var(--accent-color);
+    color: var(--accent-color);      /* 中粉色 */
 }
 
+/* 删除按钮位置 */
 .memory-delete {
-    right: 1rem;
+    right: 1rem;                     /* 距右侧1rem */
 }
 
+/* 删除按钮悬停效果 */
 .memory-delete:hover {
-    color: var(--primary-color);
+    color: var(--primary-color);     /* 主粉色 */
 }
 
-/* 纪念日 */
+/* ============================================
+   纪念日区域
+   ============================================ */
+
+/* 纪念日网格布局 */
 .anniversaries-grid {
     display: grid;
+    /* 自动填充：每列最小280px，最大占满剩余空间 */
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 2rem;                       /* 间距：可调整 */
+    margin-bottom: 2rem;             /* 下边距 */
 }
 
+/* 纪念日卡片 - 渐变背景 */
 .anniversary-card {
+    /* 渐变背景：从主粉色到强调色 */
     background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    color: white;                    /* 白色文字 */
+    border-radius: 15px;             /* 圆角：可调整 */
+    padding: 2rem;                   /* 内边距：可调整 */
+    box-shadow: var(--shadow);       /* 阴影 */
+    transition: all 0.3s ease;       /* 过渡动画 */
     position: relative;
-    animation: fadeIn 0.6s ease;
+    animation: fadeIn 0.6s ease;     /* 淡入动画 */
 }
 
+/* 卡片悬停效果 - 向上浮动 + 轻微放大 */
 .anniversary-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: var(--shadow-hover);
+    transform: translateY(-5px) scale(1.02);  /* 向上5px + 放大1.02個 */
+    box-shadow: var(--shadow-hover);  /* 更深的阴影 */
 }
 
+/* 纪念日卡片内容 */
+
+/* 图标 */
 .anniversary-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;                 /* 大小：可调整 */
+    margin-bottom: 1rem;             /* 下边距 */
     display: block;
 }
 
+/* 纪念日名称 */
 .anniversary-name {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;               /* 字体大小：可调整 */
+    font-weight: bold;               /* 粗体 */
+    margin-bottom: 0.5rem;           /* 下边距 */
 }
 
+/* 日期 */
 .anniversary-date {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
+    font-size: 1rem;                 /* 字体大小：可调整 */
+    opacity: 0.9;                    /* 透明度 */
+    margin-bottom: 0.5rem;           /* 下边距 */
 }
 
+/* 倒计时 */
 .anniversary-countdown {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 1rem;
+    font-size: 0.9rem;               /* 字体大小：可调整 */
+    opacity: 0.8;                    /* 透明度 */
+    margin-bottom: 1rem;             /* 下边距 */
 }
 
+/* 描述 */
 .anniversary-desc {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    opacity: 0.95;
+    font-size: 0.95rem;              /* 字体大小：可调整 */
+    line-height: 1.5;                /* 行高 */
+    opacity: 0.95;                   /* 透明度 */
 }
 
+/* 编辑和删除按钮 - 卡片右上角，半透明圆形 */
 .anniversary-edit,
 .anniversary-delete {
     position: absolute;
-    top: 1rem;
-    background: rgba(255, 255, 255, 0.3);
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: white;
-    font-size: 1rem;
+    top: 1rem;                       /* 位置：距顶部1rem */
+    background: rgba(255, 255, 255, 0.3);  /* 半透明白色 */
+    border: none;                    /* 无边框 */
+    width: 30px;                     /* 宽度 */
+    height: 30px;                    /* 高度 */
+    border-radius: 50%;              /* 圆形 */
+    cursor: pointer;                 /* 鼠标样式：手型 */
+    color: white;                    /* 白色文字 */
+    font-size: 1rem;                 /* 字体大小 */
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s ease;
-    z-index: 10;
+    transition: background 0.3s ease;  /* 背景过渡 */
+    z-index: 10;                     /* 在最上层 */
 }
 
+/* 编辑按钮位置 */
 .anniversary-edit {
-    right: 3.5rem;
+    right: 3.5rem;                   /* 距右侧3.5rem */
 }
 
+/* 编辑按钮悬停效果 */
 .anniversary-edit:hover {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.6);  /* 更不透明 */
 }
 
+/* 删除按钮位置 */
 .anniversary-delete {
-    right: 1rem;
+    right: 1rem;                     /* 距右侧1rem */
 }
 
+/* 删除按钮悬停效果 */
 .anniversary-delete:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.5);  /* 更不透明 */
 }
 
-/* 按钮 */
+/* ============================================
+   添加按钮
+   ============================================ */
+
 .add-btn {
-    display: block;
-    margin: 2rem auto;
-    padding: 1rem 2.5rem;
+    display: block;                  /* 块级元素 */
+    margin: 2rem auto;               /* 居中显示 */
+    padding: 1rem 2.5rem;            /* 内边距：可调整 */
+    /* 渐变背景：从主粉色到强调色 */
     background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    color: white;                    /* 白色文字 */
+    border: none;                    /* 无边框 */
+    border-radius: 50px;             /* 圆角按钮 */
+    font-size: 1.1rem;               /* 字体大小：可调整 */
+    font-weight: 500;                /* 字重 */
+    cursor: pointer;                 /* 鼠标样式：手型 */
+    box-shadow: var(--shadow);       /* 阴影 */
+    transition: all 0.3s ease;       /* 过渡动画 */
 }
 
+/* 按钮悬停效果 - 向上浮动 */
 .add-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
+    transform: translateY(-3px);     /* 向上移动3px */
+    box-shadow: var(--shadow-hover); /* 更深的阴影 */
 }
 
+/* 按钮图标 */
 .add-btn i {
-    margin-right: 0.5rem;
+    margin-right: 0.5rem;            /* 右边距 */
 }
 
-/* 模态框 */
+/* ============================================
+   模态框（弹窗）
+   ============================================ */
+
+/* 模态框背景遮罩 */
 .modal {
-    display: none;
-    position: fixed;
+    display: none;                   /* 默认隐藏 */
+    position: fixed;                 /* 固定定位 */
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.3s ease;
+    width: 100%;                     /* 全屏宽度 */
+    height: 100%;                    /* 全屏高度 */
+    background: rgba(0, 0, 0, 0.6);  /* 半透明黑色背景 */
+    backdrop-filter: blur(5px);      /* 毛玻璃模糊效果 */
+    z-index: 2000;                   /* 在最上层 */
+    align-items: center;             /* 垂直居中 */
+    justify-content: center;         /* 水平居中 */
+    animation: fadeIn 0.3s ease;     /* 淡入动画 */
 }
 
+/* 模态框激活状态 */
 .modal.active {
-    display: flex;
+    display: flex;                   /* 显示为flex布局 */
 }
 
+/* 模态框内容容器 */
 .modal-content {
-    background: var(--bg-white);
-    border-radius: 20px;
-    padding: 2.5rem;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+    background: var(--bg-white);     /* 白色背景 */
+    border-radius: 20px;             /* 圆角：可调整 */
+    padding: 2.5rem;                 /* 内边距：可调整 */
+    max-width: 500px;                /* 最大宽度：可调整 */
+    width: 90%;                      /* 宽度：占屏幕90% */
+    max-height: 90vh;                /* 最大高度：占屏幕90% */
+    overflow-y: auto;                /* 垂直滚动 */
     position: relative;
-    animation: slideUp 0.3s ease;
+    animation: slideUp 0.3s ease;    /* 向上滑动动画 */
 }
 
+/* 向上滑动动画 */
 @keyframes slideUp {
     from {
-        opacity: 0;
-        transform: translateY(50px);
+        opacity: 0;                      /* 透明 */
+        transform: translateY(50px);     /* 向下偏移50px */
     }
     to {
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 1;                      /* 不透明 */
+        transform: translateY(0);        /* 原始位置 */
     }
 }
 
+/* 模态框关闭按钮 */
 .modal-close {
     position: absolute;
-    top: 1rem;
+    top: 1rem;                       /* 位置：右上角 */
     right: 1rem;
-    font-size: 2rem;
-    color: var(--text-light);
-    cursor: pointer;
-    transition: color 0.3s ease;
-    line-height: 1;
+    font-size: 2rem;                 /* 字体大小：可调整 */
+    color: var(--text-light);        /* 浅灰色 */
+    cursor: pointer;                 /* 鼠标样式：手型 */
+    transition: color 0.3s ease;     /* 颜色过渡 */
+    line-height: 1;                  /* 行高 */
 }
 
+/* 关闭按钮悬停效果 */
 .modal-close:hover {
-    color: var(--primary-color);
+    color: var(--primary-color);     /* 粉色 */
 }
 
+/* 模态框标题 */
 .modal-title {
-    font-size: 1.8rem;
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
+    font-size: 1.8rem;               /* 字体大小：可调整 */
+    color: var(--primary-color);     /* 粉色 */
+    margin-bottom: 1.5rem;           /* 下边距 */
 }
 
+/* ============================================
+   表单样式
+   ============================================ */
+
+/* 表单组 */
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem;           /* 下边距：可调整 */
 }
 
+/* 表单标签 */
 .form-group label {
-    display: block;
-    color: var(--text-dark);
-    font-weight: 500;
-    margin-bottom: 0.5rem;
+    display: block;                  /* 块级元素 */
+    color: var(--text-dark);         /* 深色 */
+    font-weight: 500;                /* 字重 */
+    margin-bottom: 0.5rem;           /* 下边距 */
 }
 
+/* 表单输入框、文本域、下拉框 */
 .form-group input,
 .form-group textarea,
 .form-group select {
-    width: 100%;
-    padding: 0.8rem;
-    border: 2px solid var(--secondary-color);
-    border-radius: 10px;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
+    width: 100%;                     /* 全宽 */
+    padding: 0.8rem;                 /* 内边距：可调整 */
+    border: 2px solid var(--secondary-color);  /* 浅粉色边框 */
+    border-radius: 10px;             /* 圆角：可调整 */
+    font-size: 1rem;                 /* 字体大小：可调整 */
+    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'Long Cang', cursive, sans-serif;  /* 统一使用中文手写字体 */
+    transition: border-color 0.3s ease;  /* 边框颜色过渡 */
 }
 
+/* 输入框聚焦效果 */
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
+    outline: none;                   /* 移除默认边框 */
+    border-color: var(--primary-color);  /* 粉色边框 */
 }
 
+/* 提交按钮 */
 .submit-btn {
-    width: 100%;
-    padding: 1rem;
+    width: 100%;                     /* 全宽 */
+    padding: 1rem;                   /* 内边距：可调整 */
+    /* 渐变背景：从主粉色到强调色 */
     background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    color: white;                    /* 白色文字 */
+    border: none;                    /* 无边框 */
+    border-radius: 10px;             /* 圆角：可调整 */
+    font-size: 1.1rem;               /* 字体大小：可调整 */
+    font-weight: 500;                /* 字重 */
+    cursor: pointer;                 /* 鼠标样式：手型 */
+    transition: all 0.3s ease;       /* 过渡动画 */
 }
 
+/* 提交按钮悬停效果 */
 .submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    transform: translateY(-2px);     /* 向上移动2px */
+    box-shadow: var(--shadow);       /* 阴影 */
 }
 
+/* 提交按钮禁用状态 */
 .submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    opacity: 0.6;                    /* 透明度 */
+    cursor: not-allowed;             /* 鼠标样式：禁止 */
 }
 
-/* 照片查看器 - 浮动窗口样式 */
+/* ============================================
+   照片查看器 - 浮动窗口样式
+   ============================================ */
+
+/* 照片查看器背景遮罩 */
 .photo-viewer {
-    display: none;
-    position: fixed;
+    display: none;                   /* 默认隐藏 */
+    position: fixed;                 /* 固定定位 */
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    z-index: 3000;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.3s ease;
+    width: 100%;                     /* 全屏宽度 */
+    height: 100%;                    /* 全屏高度 */
+    background: rgba(0, 0, 0, 0.85); /* 半透明黑色背景 */
+    backdrop-filter: blur(10px);     /* 毛玻璃模糊效果 */
+    z-index: 3000;                   /* 在最上层 */
+    align-items: center;             /* 垂直居中 */
+    justify-content: center;         /* 水平居中 */
+    animation: fadeIn 0.3s ease;     /* 淡入动画 */
 }
 
+/* 照片查看器激活状态 */
 .photo-viewer.active {
-    display: flex;
+    display: flex;                   /* 显示为flex布局 */
 }
 
 /* 浮动窗口容器 */
@@ -1369,248 +1581,307 @@ body::after {
     transform: scale(1.1);
 }
 
-/* 响应式设计 */
+/* ============================================
+   响应式设计 - 移动端适配（屏幕宽度 ≤ 768px）
+   ============================================ */
+
 @media (max-width: 768px) {
+    
+    /* ========== 主页横幅适配 ========== */
+    
+    /* 主标题 - 缩小字体，防止换行 */
     .hero-title {
-        font-size: 2rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 2rem;               /* 从4rem缩小到2rem */
+        white-space: nowrap;           /* 不换行 */
+        overflow: hidden;              /* 隐藏溢出 */
+        text-overflow: ellipsis;       /* 显示省略号 */
     }
 
+    /* 副标题 - 缩小字体和间距 */
     .hero-subtitle {
-        font-size: 1rem;
-        margin-bottom: 2rem;
+        font-size: 1rem;               /* 从1.5rem缩小到1rem */
+        margin-bottom: 2rem;           /* 从3rem缩小到2rem */
     }
 
+    /* 爱情计数器 - 紧凑布局 */
     .love-counter {
-        gap: 0.3rem;
-        padding: 0 0.5rem;
-        flex-wrap: nowrap;
+        gap: 0.3rem;                   /* 从2rem缩小到0.3rem */
+        padding: 0 0.5rem;             /* 添加左右内边距 */
+        flex-wrap: nowrap;             /* 不换行 */
     }
 
+    /* 计数器单项 - 缩小尺寸 */
     .counter-item {
-        padding: 0.6rem 0.5rem;
-        min-width: 60px;
-        flex: 1 1 0;
-        max-width: none;
+        padding: 0.6rem 0.5rem;        /* 从1.5rem 2rem缩小 */
+        min-width: 60px;               /* 从100px缩小到60px */
+        flex: 1 1 0;                   /* 平均分配空间 */
+        max-width: none;               /* 移除最大宽度限制 */
     }
 
+    /* 计数器数字 - 缩小字体 */
     .counter-number {
-        font-size: 1.5rem;
+        font-size: 1.5rem;             /* 从3rem缩小到1.5rem */
     }
 
+    /* 计数器标签 - 缩小字体 */
     .counter-label {
-        font-size: 0.85rem;
+        font-size: 0.85rem;            /* 从1rem缩小到0.85rem */
     }
 
+    /* 爱情日期 - 缩小字体，防止换行 */
     .love-date {
-        font-size: 1rem;
-        padding: 0 1rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 1rem;               /* 从1.2rem缩小到1rem */
+        padding: 0 1rem;               /* 添加左右内边距 */
+        white-space: nowrap;           /* 不换行 */
+        overflow: hidden;              /* 隐藏溢出 */
+        text-overflow: ellipsis;       /* 显示省略号 */
     }
 
+    /* ========== 导航栏适配 ========== */
+    
+    /* 导航容器 - 垂直布局 */
     .nav-container {
-        flex-direction: column;
-        gap: 0.8rem;
-        padding: 0 1rem;
+        flex-direction: column;        /* 垂直排列 */
+        gap: 0.8rem;                   /* 间距 */
+        padding: 0 1rem;               /* 左右内边距 */
     }
 
+    /* 导航标题 - 缩小字体 */
     .nav-title {
-        font-size: 1.2rem;
+        font-size: 1.2rem;             /* 从1.5rem缩小到1.2rem */
     }
 
+    /* 导航链接 - 缩小间距和字体 */
     .nav-links {
-        gap: 0.8rem;
-        justify-content: center;
-        font-size: 0.9rem;
+        gap: 0.8rem;                   /* 从2rem缩小到0.8rem */
+        justify-content: center;       /* 居中对齐 */
+        font-size: 0.9rem;             /* 缩小字体 */
     }
 
+    /* ========== 通用区块适配 ========== */
+    
+    /* 区块 - 缩小内边距 */
     .section {
-        padding: 3rem 1rem;
+        padding: 3rem 1rem;            /* 从5rem 2rem缩小到3rem 1rem */
     }
 
+    /* 区块标题 - 缩小字体 */
     .section-title {
-        font-size: 1.8rem;
+        font-size: 1.8rem;             /* 从2.5rem缩小到1.8rem */
     }
 
+    /* 区块副标题 - 缩小字体 */
     .section-subtitle {
-        font-size: 0.9rem;
-        padding: 0 1rem;
+        font-size: 0.9rem;             /* 从1rem缩小到0.9rem */
+        padding: 0 1rem;               /* 添加左右内边距 */
     }
 
-    /* 移动端时间轴 */
+    /* ========== 移动端时间轴适配 ========== */
+    
+    /* 时间轴容器 - 缩小内边距 */
     .timeline {
-        padding: 3rem 0;
+        padding: 3rem 0;               /* 从6rem 0缩小到3rem 0 */
     }
 
+    /* S形曲线 - 缩小宽度 */
     .timeline::before {
-        background-size: 600px auto;
+        background-size: 600px auto;   /* 从800px缩小到600px */
     }
 
+    /* 时间轴事件项 - 缩小间距和内边距 */
     .timeline-item {
-        margin-bottom: 5rem;
-        padding-left: 5% !important;
-        padding-right: 5% !important;
+        margin-bottom: 5rem;           /* 从8rem缩小到5rem */
+        padding-left: 5% !important;   /* 从10%缩小到5% */
+        padding-right: 5% !important;  /* 从10%缩小到5% */
     }
 
+    /* 图片容器 - 缩小尺寸 */
     .timeline-image-container {
-        width: 120px;
+        width: 120px;                  /* 从200px缩小到120px */
     }
 
+    /* 圆形图片框 - 缩小尺寸 */
     .timeline-item:nth-child(odd) .timeline-photo-frame {
-        width: 120px !important;
-        height: 120px !important;
+        width: 120px !important;       /* 从180px缩小到120px */
+        height: 120px !important;      /* 从180px缩小到120px */
     }
 
+    /* 方形图片容器 - 缩小尺寸 */
     .timeline-item:nth-child(even) .timeline-image-container {
-        width: 90px;
-        padding: 6px 6px 20px 6px;
+        width: 90px;                   /* 从160px缩小到90px */
+        padding: 6px 6px 20px 6px;     /* 缩小内边距 */
     }
 
+    /* 标签 - 缩小字体和尺寸 */
     .timeline-flag {
-        font-size: 0.85rem;
-        padding: 5px 20px 5px 10px;
-        min-width: 120px;
+        font-size: 0.85rem;            /* 从1rem缩小到0.85rem */
+        padding: 5px 20px 5px 10px;    /* 缩小内边距 */
+        min-width: 120px;              /* 从140px缩小到120px */
     }
     
+    /* 日期标签 - 缩小字体 */
     .timeline-flag-date {
-        font-size: 0.8rem;
+        font-size: 0.8rem;             /* 从0.95rem缩小到0.8rem */
     }
     
+    /* 标题标签 - 缩小字体 */
     .timeline-flag-title {
-        font-size: 0.9rem;
+        font-size: 0.9rem;             /* 从1.1rem缩小到0.9rem */
     }
 
+    /* 内容区域 - 缩小尺寸和位置 */
     .timeline-content {
-        max-width: 220px;
-        padding: 0.8rem 1rem;
-        top: 240px;
+        max-width: 220px;              /* 从280px缩小到220px */
+        padding: 0.8rem 1rem;          /* 从1rem 1.2rem缩小 */
+        top: 240px;                    /* 从280px调整到240px */
     }
     
+    /* 装饰元素 - 调整位置和大小 */
     .timeline-decorations {
-        left: -50px;
-        width: 40px;
-        height: 40px;
+        left: -50px;                   /* 从-70px调整到-50px */
+        width: 40px;                   /* 从60px缩小到40px */
+        height: 40px;                  /* 从60px缩小到40px */
     }
     
+    /* 装饰元素内容 - 缩小字体 */
     .timeline-decorations::before {
-        font-size: 1.5rem;
+        font-size: 1.5rem;             /* 从2rem缩小到1.5rem */
     }
     
+    /* 表情徽章 - 调整位置和大小 */
     .timeline-badge {
-        top: -50px;
-        font-size: 2rem;
+        top: -50px;                    /* 从-70px调整到-50px */
+        font-size: 2rem;               /* 从2.5rem缩小到2rem */
     }
 
+    /* 内容文字 - 缩小字体 */
     .timeline-date {
-        font-size: 0.7rem;
+        font-size: 0.7rem;             /* 从0.75rem缩小到0.7rem */
     }
 
     .timeline-title {
-        font-size: 0.85rem;
+        font-size: 0.85rem;            /* 从0.9rem缩小到0.85rem */
     }
 
     .timeline-desc {
-        font-size: 0.8rem;
+        font-size: 0.8rem;             /* 从0.85rem缩小到0.8rem */
     }
 
+    /* 表情徽章（旧样式，可能重复） */
     .timeline-badge {
-        font-size: 1.5rem;
-        top: -6px;
+        font-size: 1.5rem;             /* 缩小字体 */
+        top: -6px;                     /* 调整位置 */
         right: -6px;
     }
 
+    /* 装饰元素（旧样式，可能重复） */
     .timeline-decorations::before,
     .timeline-decorations::after {
-        font-size: 1.2rem;
+        font-size: 1.2rem;             /* 从1.5rem缩小到1.2rem */
     }
 
-    /* 移动端照片查看器 */
+    /* ========== 移动端照片查看器适配 ========== */
+    
+    /* 照片查看器容器 - 缩小尺寸 */
     .photo-viewer-container {
-        max-width: 95vw;
-        max-height: 90vh;
-        padding: 2rem 1rem 1rem;
-        border-radius: 20px;
+        max-width: 95vw;               /* 从90vw增加到95vw */
+        max-height: 90vh;              /* 从85vh增加到90vh */
+        padding: 2rem 1rem 1rem;       /* 从3rem 2rem 2rem缩小 */
+        border-radius: 20px;           /* 从30px缩小到20px */
     }
 
+    /* 装饰元素 - 缩小字体 */
     .viewer-decorations::before,
     .viewer-decorations::after {
-        font-size: 2rem;
+        font-size: 2rem;               /* 从3rem缩小到2rem */
     }
 
+    /* 关闭按钮 - 缩小尺寸 */
     .viewer-close {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-        top: 0.5rem;
-        right: 0.5rem;
+        width: 40px;                   /* 从45px缩小到40px */
+        height: 40px;                  /* 从45px缩小到40px */
+        font-size: 1.2rem;             /* 从1.5rem缩小到1.2rem */
+        top: 0.5rem;                   /* 从1rem调整到0.5rem */
+        right: 0.5rem;                 /* 从1rem调整到0.5rem */
     }
 
+    /* 图片滚动容器 - 缩小间距 */
     .viewer-images-scroll {
-        gap: 1rem;
+        gap: 1rem;                     /* 从1.5rem缩小到1rem */
     }
 
+    /* 图片项 - 缩小尺寸 */
     .viewer-image-item img {
-        height: 300px;
-        max-width: 400px;
+        height: 300px;                 /* 从400px缩小到300px */
+        max-width: 400px;              /* 从600px缩小到400px */
     }
 
+    /* 单张图片 - 缩小尺寸 */
     .viewer-images-scroll.single-image .viewer-image-item img {
-        height: 350px;
-        max-width: 90vw;
+        height: 350px;                 /* 从500px缩小到350px */
+        max-width: 90vw;               /* 从800px调整为90vw */
     }
 
+    /* 放大模式 - 缩小尺寸 */
     .viewer-image-item.enlarged img {
-        height: 70vh;
-        max-width: 95vw;
+        height: 70vh;                  /* 从85vh缩小到70vh */
+        max-width: 95vw;               /* 从90vw增加到95vw */
     }
 
+    /* 图片标题 - 缩小字体 */
     .viewer-caption {
-        font-size: 1.1rem;
+        font-size: 1.1rem;             /* 从1.3rem缩小到1.1rem */
     }
 
+    /* 图片计数器 - 缩小字体 */
     .viewer-counter {
-        font-size: 0.8rem;
-        padding: 0.4rem 1rem;
+        font-size: 0.8rem;             /* 从0.9rem缩小到0.8rem */
+        padding: 0.4rem 1rem;          /* 从0.5rem 1.5rem缩小 */
     }
 
+    /* ========== 其他区域适配 ========== */
+    
+    /* 甘蜜日常和纪念日网格 - 单列布局 */
     .memories-grid,
     .anniversaries-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr;    /* 从多列改为单列 */
     }
 
+    /* 照片网格 - 2列布局 */
     .timeline-photos,
     .memory-photos,
     .anniversary-photos {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr);  /* 2列布局 */
     }
 
+    /* 模态框 - 缩小尺寸 */
     .modal-content {
-        padding: 2rem 1.5rem;
-        width: 95%;
-        max-height: 85vh;
+        padding: 2rem 1.5rem;          /* 从2.5rem缩小到2rem 1.5rem */
+        width: 95%;                    /* 从90%增加到95% */
+        max-height: 85vh;              /* 从90vh缩小到85vh */
     }
 
+    /* 模态框标题 - 缩小字体 */
     .modal-title {
-        font-size: 1.5rem;
+        font-size: 1.5rem;             /* 从1.8rem缩小到1.5rem */
     }
 
+    /* 表单标签 - 缩小字体 */
     .form-group label {
-        font-size: 0.95rem;
+        font-size: 0.95rem;            /* 缩小字体 */
     }
 
+    /* 表单输入框 - 缩小字体和内边距 */
     .form-group input,
     .form-group textarea,
     .form-group select {
-        font-size: 0.95rem;
-        padding: 0.7rem;
+        font-size: 0.95rem;            /* 缩小字体 */
+        padding: 0.7rem;               /* 从0.8rem缩小到0.7rem */
     }
 
+    /* 添加按钮 - 缩小尺寸 */
     .add-btn {
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
+        padding: 0.8rem 2rem;          /* 从1rem 2.5rem缩小 */
+        font-size: 1rem;               /* 从1.1rem缩小到1rem */
     }
 }
