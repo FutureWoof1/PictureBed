@@ -1443,7 +1443,7 @@ body::after {
 }
 
 .viewer-image-item img {
-    height: 400px;
+    max-height: 400px;
     width: auto;
     max-width: 600px;
     object-fit: contain;
@@ -1477,16 +1477,22 @@ body::after {
     opacity: 1;
 }
 
-/* 放大模式 */
+/* 放大模式 - 全屏查看 */
 .viewer-image-item.enlarged img {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    height: 85vh;
-    max-width: 90vw;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    transform: none;
     z-index: 3002;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.95);
 }
 
 .viewer-caption {
@@ -1505,7 +1511,7 @@ body::after {
 }
 
 .viewer-images-scroll.single-image .viewer-image-item img {
-    height: 500px;
+    max-height: 500px;
     max-width: 800px;
 }
 
@@ -1950,22 +1956,25 @@ body::after {
         gap: 1rem;                     /* 从1.5rem缩小到1rem */
     }
 
-    /* 图片项 - 缩小尺寸 */
+    /* 图片项 - 保持原始大小 */
     .viewer-image-item img {
-        height: 300px;                 /* 从400px缩小到300px */
+        max-height: 300px;             /* 从400px缩小到300px */
         max-width: 400px;              /* 从600px缩小到400px */
     }
 
-    /* 单张图片 - 缩小尺寸 */
+    /* 单张图片 - 保持原始大小 */
     .viewer-images-scroll.single-image .viewer-image-item img {
-        height: 350px;                 /* 从500px缩小到350px */
+        max-height: 350px;             /* 从500px缩小到350px */
         max-width: 90vw;               /* 从800px调整为90vw */
     }
 
-    /* 放大模式 - 缩小尺寸 */
+    /* 放大模式 - 移动端全屏查看 */
     .viewer-image-item.enlarged img {
-        height: 70vh;                  /* 从85vh缩小到70vh */
-        max-width: 95vw;               /* 从90vw增加到95vw */
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
     }
 
     /* 图片标题 - 缩小字体 */
