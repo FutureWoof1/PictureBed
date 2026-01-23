@@ -762,9 +762,9 @@ body::after {
 /* 内容卡片 - 默认隐藏 */
 .timeline-content {
     position: absolute;
-    top: 280px;                    /* 位置：距顶部280px，可调整 */
+    bottom: 100%;                  /* 位置：显示在事件组上方 */
     left: 50%;                     /* 居中 */
-    transform: translateX(-50%);   /* 居中偏移 */
+    transform: translateX(-50%) translateY(-20px);   /* 居中偏移并向上偏移20px */
     background: rgba(255, 255, 255, 0.95);  /* 半透明白色背景 */
     padding: 1rem 1.2rem;          /* 内边距：可调整 */
     border-radius: 15px;           /* 圆角 */
@@ -773,7 +773,7 @@ body::after {
     width: max-content;            /* 宽度自适应内容 */
     min-width: 180px;              /* 最小宽度：可调整 */
     transition: all 0.3s ease;     /* 过渡动画 */
-    z-index: 2;                    /* 层级 */
+    z-index: 100;                  /* 层级：浮动到最上方 */
     display: none;                 /* 默认隐藏 */
     backdrop-filter: blur(10px);   /* 毛玻璃效果 */
     font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', cursive;  /* 中文手写字体 */
@@ -1807,14 +1807,14 @@ body::after {
     
     /* 奇数项：嵌入左侧弧内 - 完美嵌入240px高度的弧度 */
     .timeline-item:nth-child(odd) {
-        padding-left: 40% !important;  /* 嵌入深度，使图片位于弧内侧 */
+        padding-left: 25% !important;  /* 嵌入深度，使图片位于弧内侧 */
         padding-right: 0 !important;
         padding-bottom: 18% !important; /* 垂直居中在弧内 */
     }
     
     /* 偶数项：嵌入右侧弧内 - 完美嵌入240px高度的弧度 */
     .timeline-item:nth-child(even) {
-        padding-right: 40% !important; /* 嵌入深度，使图片位于弧内侧 */
+        padding-right: 25% !important; /* 嵌入深度，使图片位于弧内侧 */
         padding-left: 0 !important;
         padding-bottom: 18% !important; /* 垂直居中在弧内 */
     }
@@ -1840,7 +1840,7 @@ body::after {
         font-size: 1.5rem;             /* 按比例缩小字体 */
         padding: 2px 10px 2px 4px;     /* 按比例缩小内边距 */
         min-width: 120px;               /* 按比例缩小最小宽度 */
-        max-width: 250px;               /* 按比例限制最大宽度 */
+        max-width: 200px;               /* 按比例限制最大宽度 */
         white-space: nowrap;           /* 不换行 */
         overflow: hidden;              /* 隐藏溢出 */
         text-overflow: ellipsis;       /* 显示省略号 */
@@ -1858,12 +1858,12 @@ body::after {
     
     /* 日期标签 - 按比例缩小字体 */
     .timeline-flag-date {
-        font-size: 1rem;            /* 按比例缩小 */
+        font-size: 0.9rem;            /* 按比例缩小 */
     }
     
     /* 标题标签 - 按比例缩小字体 */
     .timeline-flag-title {
-        font-size: 1rem;            /* 按比例缩小 */
+        font-size: 0.9rem;            /* 按比例缩小 */
     }
     
     /*!* 移动端标签不倾斜 *!*/
@@ -1874,9 +1874,15 @@ body::after {
     /*    transform: rotate(0deg) !important;  !* 移除倾斜 *!*/
     /*}*/
 
-    /* 内容区域 - 移动端隐藏（节省空间） */
+    /* 内容区域 - 移动端显示在事件组上方 */
     .timeline-content {
-        display: none;                 /* 移动端隐藏内容区域 */
+        bottom: 100%;                  /* 位置：显示在事件组上方 */
+        top: auto;                     /* 取消top定位 */
+        transform: translateX(-50%) translateY(-10px);   /* 居中偏移并向上偏移10px */
+        max-width: 90vw;               /* 移动端最大宽度 */
+        font-size: 0.85rem;            /* 缩小字体 */
+        padding: 0.8rem 1rem;          /* 缩小内边距 */
+        z-index: 100;                  /* 浮动到最上方 */
     }
     
     /* 装饰元素已移除 */
@@ -1884,32 +1890,32 @@ body::after {
     /* 表情徽章 - 按比例缩小 */
     .timeline-badge {
         top: -5px;                     /* 图片上角 */
-        font-size: 1.1rem;             /* 按比例缩小，适配70px图片框 */
+        font-size: 1.5rem;             /* 按比例缩小，适配70px图片框 */
         z-index: 10;                   /* 确保在最上层 */
     }
     
     /* 奇数项：表情在左上角 */
     .timeline-item:nth-child(odd) .timeline-badge {
-        left: -5px;                    /* 左上角 */
+        left: -2px;                    /* 左上角 */
     }
     
     /* 偶数项：表情在右上角 */
     .timeline-item:nth-child(even) .timeline-badge {
-        right: -5px;                   /* 右上角 */
+        right: -2px;                   /* 右上角 */
         left: auto;                    /* 取消左侧定位 */
     }
 
     /* 内容文字 - 缩小字体 */
     .timeline-date {
-        font-size: 0.7rem;             /* 从0.75rem缩小到0.7rem */
+        font-size: 1rem;             /* 从0.75rem缩小到0.7rem */
     }
 
     .timeline-title {
-        font-size: 0.85rem;            /* 从0.9rem缩小到0.85rem */
+        font-size: 1.0rem;            /* 从0.9rem缩小到0.85rem */
     }
 
     .timeline-desc {
-        font-size: 0.8rem;             /* 从0.85rem缩小到0.8rem */
+        font-size: 0.85rem;             /* 从0.85rem缩小到0.8rem */
     }
 
 
