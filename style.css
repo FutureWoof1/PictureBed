@@ -1,4 +1,6 @@
 /* 全局样式 */
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Patrick+Hand&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -15,17 +17,21 @@
     --bg-white: #ffffff;
     --shadow: 0 4px 20px rgba(255, 107, 157, 0.15);
     --shadow-hover: 0 8px 30px rgba(255, 107, 157, 0.25);
+    --flag-blue: #89CFF0;
+    --flag-pink: #FFB7C5;
+    --flag-purple: #DDA0DD;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Patrick Hand', 'Indie Flower', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-dark);
-    background: linear-gradient(135deg, #ffeef8 0%, #fff5f8 100%);
+    background: linear-gradient(180deg, #ffd6e8 0%, #ffb3d9 15%, #ffc9e8 30%, #e8d4ff 50%, #c9e4ff 70%, #b3d9ff 85%, #d4f1ff 100%);
     overflow-x: hidden;
     line-height: 1.6;
+    position: relative;
 }
 
-/* 爱心背景动画 */
+/* Kawaii背景装饰 - 云朵、星星、爱心 */
 .hearts-background {
     position: fixed;
     top: 0;
@@ -37,33 +43,94 @@ body {
     overflow: hidden;
 }
 
-.hearts-background::before,
-.hearts-background::after {
-    content: '💕';
-    position: absolute;
-    font-size: 30px;
-    opacity: 0.1;
-    animation: float 15s infinite;
-}
-
 .hearts-background::before {
-    top: 10%;
-    left: 20%;
-    animation-delay: 0s;
+    content: '☁️';
+    position: absolute;
+    font-size: 60px;
+    opacity: 0.3;
+    top: 15%;
+    left: 10%;
+    animation: floatCloud 20s infinite ease-in-out;
 }
 
 .hearts-background::after {
-    top: 60%;
+    content: '✨';
+    position: absolute;
+    font-size: 40px;
+    opacity: 0.4;
+    top: 70%;
     right: 15%;
-    animation-delay: 7s;
+    animation: twinkle 3s infinite ease-in-out;
 }
 
-@keyframes float {
+/* 云朵漂浮动画 */
+@keyframes floatCloud {
     0%, 100% {
-        transform: translateY(0) rotate(0deg);
+        transform: translate(0, 0);
+    }
+    25% {
+        transform: translate(30px, -20px);
     }
     50% {
-        transform: translateY(-50px) rotate(180deg);
+        transform: translate(60px, 0);
+    }
+    75% {
+        transform: translate(30px, 20px);
+    }
+}
+
+/* 星星闪烁动画 */
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.2) rotate(180deg);
+    }
+}
+
+/* 额外的装饰元素 */
+body::before {
+    content: '💕';
+    position: fixed;
+    font-size: 50px;
+    opacity: 0.25;
+    top: 40%;
+    right: 8%;
+    animation: floatHeart 15s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body::after {
+    content: '🌸';
+    position: fixed;
+    font-size: 45px;
+    opacity: 0.3;
+    bottom: 20%;
+    left: 12%;
+    animation: spin 25s infinite linear;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes floatHeart {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-40px) scale(1.1);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
 
@@ -164,6 +231,11 @@ body {
     margin-bottom: 1rem;
     text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
     animation: fadeInDown 1s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    flex-wrap: nowrap;
 }
 
 .hero-subtitle {
@@ -208,6 +280,11 @@ body {
     font-size: 1.2rem;
     opacity: 0.9;
     animation: fadeInUp 1s ease 0.9s both;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    flex-wrap: nowrap;
 }
 
 @keyframes fadeInDown {
@@ -240,7 +317,7 @@ body {
 }
 
 .bg-pink {
-    background: var(--bg-light);
+    background: transparent;
 }
 
 .container {
@@ -271,95 +348,330 @@ body {
     border-radius: 2px;
 }
 
-/* 时光轴 */
+/* 时光轴 - Kawaii S形曲线样式 */
 .timeline {
     position: relative;
-    padding: 2rem 0;
+    padding: 6rem 0;
+    background: transparent;
+    overflow: visible;
+    min-height: 800px;
 }
 
+/* S形曲线路径 - 使用SVG */
 .timeline::before {
     content: '';
     position: absolute;
     left: 50%;
     top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+    width: 100%;
+    height: 100%;
     transform: translateX(-50%);
+    background-image: url("data:image/svg+xml,%3Csvg width='800' height='100%25' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMin slice'%3E%3Cpath d='M 400 0 Q 200 150 400 300 T 400 600 T 400 900 T 400 1200 T 400 1500 T 400 1800 T 400 2100 T 400 2400 T 400 2700 T 400 3000' stroke='white' stroke-width='12' fill='none' stroke-linecap='round' opacity='0.9' filter='drop-shadow(0 4px 8px rgba(255,182,193,0.4))'/%3E%3C/svg%3E");
+    background-repeat: repeat-y;
+    background-position: center top;
+    background-size: 800px auto;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .timeline-item {
+    position: relative;
+    margin-bottom: 8rem;
+    animation: fadeIn 0.8s ease;
+    z-index: 2;
     display: flex;
-    margin-bottom: 3rem;
-    position: relative;
-    animation: fadeIn 0.6s ease;
+    justify-content: center;
 }
 
+/* 交替左右布局 - 沿S曲线分布 */
 .timeline-item:nth-child(odd) {
-    flex-direction: row-reverse;
+    justify-content: flex-start;
+    padding-left: 10%;
 }
 
-.timeline-content {
-    width: 45%;
-    background: var(--bg-white);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+.timeline-item:nth-child(even) {
+    justify-content: flex-end;
+    padding-right: 10%;
+}
+
+/* 图片容器 - 圆形和方形交错 */
+.timeline-image-container {
     position: relative;
+    width: 200px;
+    flex-shrink: 0;
+    z-index: 3;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 图片框样式 */
+.timeline-photo-frame {
+    background: white;
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timeline-photo-frame:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+}
+
+/* 圆形图片（奇数） */
+.timeline-item:nth-child(odd) .timeline-photo-frame {
+    border-radius: 50%;
+    width: 180px;
+    height: 180px;
+    border: 6px solid white;
+}
+
+.timeline-item:nth-child(odd) .timeline-circle-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 30%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffd6e8, #c9b3ff);
+}
+
+/* 方形图片（偶数） - 拍立得风格 */
+.timeline-item:nth-child(even) .timeline-photo-frame {
+    width: 160px;
+    height: 190px;
+    padding: 8px 8px 35px 8px;
+    border-radius: 2px;
+    transform: rotate(-2deg);
+}
+
+.timeline-item:nth-child(even):hover .timeline-photo-frame {
+    transform: rotate(0deg) scale(1.05);
+}
+
+.timeline-item:nth-child(even) .timeline-circle-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffd6e8, #c9b3ff);
+    border: 1px solid #eee;
+}
+
+.timeline-item:hover .timeline-circle-image {
+    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+}
+
+/* 手绘卡通装饰元素 - 放在标签组左侧 */
+.timeline-decorations {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    top: 0;
+    left: -70px;
+    pointer-events: none;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-decorations::before {
+    position: absolute;
+    font-size: 2rem;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 花朵装饰 */
+.timeline-item:nth-child(4n+1) .timeline-decorations::before {
+    content: '🌸';
+    animation: float 4s ease-in-out infinite, spin 12s linear infinite;
+}
+
+/* 爱心装饰 */
+.timeline-item:nth-child(4n+2) .timeline-decorations::before {
+    content: '💕';
+    animation: float 3.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;
+}
+
+/* 云朵装饰 */
+.timeline-item:nth-child(4n+3) .timeline-decorations::before {
+    content: '☁️';
+    animation: floatCloud 5s ease-in-out infinite;
+}
+
+/* 星星装饰 */
+.timeline-item:nth-child(4n) .timeline-decorations::before {
+    content: '✨';
+    animation: float 3s ease-in-out infinite, twinkle 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+}
+
+/* 标签样式 - 燕尾旗样式，日期和标题分离 */
+.timeline-labels {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+    z-index: 4;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timeline-labels:hover {
+    transform: scale(1.02);
+}
+
+.timeline-flag {
+    padding: 6px 25px 6px 12px;
+    color: white;
+    font-size: 1rem;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 85% 50%, 100% 100%, 0 100%);
+    border-radius: 5px 0 0 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    min-width: 140px;
+    transition: all 0.3s ease;
+    font-family: 'Patrick Hand', cursive;
+    pointer-events: none;
+}
+
+.timeline-flag-date {
+    font-weight: bold;
+    font-size: 0.95rem;
+    transform: rotate(-2deg);
+}
+
+.timeline-flag-title {
+    font-size: 1.1rem;
+    transform: rotate(2deg);
+}
+
+/* 旗帜颜色 - 循环使用 */
+.timeline-item:nth-child(3n+1) .timeline-flag-date {
+    background-color: var(--flag-blue);
+}
+
+.timeline-item:nth-child(3n+1) .timeline-flag-title {
+    background-color: var(--flag-blue);
+    opacity: 0.9;
+}
+
+.timeline-item:nth-child(3n+2) .timeline-flag-date {
+    background-color: var(--flag-pink);
+}
+
+.timeline-item:nth-child(3n+2) .timeline-flag-title {
+    background-color: var(--flag-pink);
+    opacity: 0.9;
+}
+
+.timeline-item:nth-child(3n) .timeline-flag-date {
+    background-color: var(--flag-purple);
+}
+
+.timeline-item:nth-child(3n) .timeline-flag-title {
+    background-color: var(--flag-purple);
+    opacity: 0.9;
+}
+
+/* 内容区域 - 可展开 */
+.timeline-content {
+    position: absolute;
+    top: 280px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1rem 1.2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 280px;
+    width: max-content;
+    min-width: 180px;
+    transition: all 0.3s ease;
+    z-index: 2;
+    display: none;
+    backdrop-filter: blur(10px);
+    font-family: 'Indie Flower', cursive;
+}
+
+.timeline-content.expanded {
+    display: block;
 }
 
 .timeline-content:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
 }
 
+/* 日期和标题样式 */
 .timeline-date {
-    color: var(--primary-color);
-    font-weight: bold;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 0.3rem;
+    font-weight: 500;
 }
 
 .timeline-title {
-    font-size: 1.3rem;
+    font-size: 0.9rem;
     color: var(--text-dark);
     margin-bottom: 0.5rem;
+    font-weight: 600;
+    line-height: 1.3;
 }
 
 .timeline-desc {
     color: var(--text-light);
-    line-height: 1.6;
+    line-height: 1.5;
+    font-size: 0.85rem;
 }
 
-.timeline-dot {
+.timeline-badge {
     position: absolute;
+    top: -70px;
     left: 50%;
-    top: 20px;
-    width: 20px;
-    height: 20px;
-    background: var(--primary-color);
-    border: 4px solid white;
-    border-radius: 50%;
     transform: translateX(-50%);
-    box-shadow: 0 0 0 4px var(--secondary-color);
-    z-index: 2;
+    font-size: 2.5rem;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+    z-index: 5;
 }
 
 .timeline-delete {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(255, 107, 157, 0.2);
     border: none;
-    color: var(--text-light);
+    color: var(--primary-color);
     cursor: pointer;
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
+    font-size: 1rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
 }
 
 .timeline-delete:hover {
-    color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
 }
 
 @keyframes fadeIn {
@@ -683,7 +995,7 @@ body {
     cursor: not-allowed;
 }
 
-/* 照片查看器 */
+/* 照片查看器 - 浮动窗口样式 */
 .photo-viewer {
     display: none;
     position: fixed;
@@ -691,7 +1003,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
     z-index: 3000;
     align-items: center;
     justify-content: center;
@@ -702,37 +1015,224 @@ body {
     display: flex;
 }
 
+/* 浮动窗口容器 */
+.photo-viewer-container {
+    position: relative;
+    background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
+    border-radius: 30px;
+    padding: 3rem 2rem 2rem;
+    max-width: 90vw;
+    max-height: 85vh;
+    box-shadow: 0 20px 60px rgba(255, 107, 157, 0.4);
+    animation: slideUp 0.4s ease;
+    overflow: hidden;
+}
+
+/* 装饰元素 */
+.viewer-decorations {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+}
+
+.viewer-decorations::before,
+.viewer-decorations::after {
+    position: absolute;
+    font-size: 3rem;
+    opacity: 0.3;
+    animation: float 4s ease-in-out infinite;
+}
+
+.viewer-decorations::before {
+    content: '💕';
+    top: 20px;
+    left: 30px;
+}
+
+.viewer-decorations::after {
+    content: '✨';
+    bottom: 30px;
+    right: 40px;
+    animation-delay: 2s;
+}
+
 .viewer-close {
     position: absolute;
-    top: 2rem;
-    right: 2rem;
-    font-size: 3rem;
+    top: 1rem;
+    right: 1rem;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
     color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
     cursor: pointer;
     z-index: 3001;
-    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
 }
 
 .viewer-close:hover {
-    transform: scale(1.2);
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
 }
 
-#viewerImage {
-    max-width: 90%;
-    max-height: 80vh;
-    object-fit: contain;
+/* 横向滚动容器 */
+.viewer-images-scroll {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0.5rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.viewer-images-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.viewer-images-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 194, 209, 0.3);
     border-radius: 10px;
 }
 
-.viewer-caption {
+.viewer-images-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 10px;
+}
+
+.viewer-images-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* 图片项 */
+.viewer-image-item {
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.viewer-image-item img {
+    height: 400px;
+    width: auto;
+    max-width: 600px;
+    object-fit: contain;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border: 5px solid white;
+    transition: all 0.3s ease;
+}
+
+.viewer-image-item:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(255, 107, 157, 0.4);
+}
+
+/* 图片装饰框 */
+.viewer-image-item::before {
+    content: '';
     position: absolute;
-    bottom: 2rem;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 107, 157, 0.1) 50%, transparent 70%);
+    border-radius: 20px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.viewer-image-item:hover::before {
+    opacity: 1;
+}
+
+/* 放大模式 */
+.viewer-image-item.enlarged img {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 85vh;
+    max-width: 90vw;
+    z-index: 3002;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.viewer-caption {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    padding: 0 1rem;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* 单张图片居中显示 */
+.viewer-images-scroll.single-image {
+    justify-content: center;
+}
+
+.viewer-images-scroll.single-image .viewer-image-item img {
+    height: 500px;
+    max-width: 800px;
+}
+
+/* 图片计数器 */
+.viewer-counter {
+    position: absolute;
+    top: 1rem;
     left: 50%;
     transform: translateX(-50%);
+    background: rgba(255, 107, 157, 0.9);
     color: white;
-    font-size: 1.2rem;
-    text-align: center;
-    max-width: 80%;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+}
+
+/* 可爱的角落装饰 */
+.viewer-corner-decor {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.viewer-corner-decor.top-left {
+    top: 10px;
+    left: 10px;
+    content: '🌸';
+}
+
+.viewer-corner-decor.top-right {
+    top: 10px;
+    right: 60px;
+    content: '🌿';
+}
+
+.viewer-corner-decor.bottom-left {
+    bottom: 10px;
+    left: 10px;
+    content: '💐';
+}
+
+.viewer-corner-decor.bottom-right {
+    bottom: 10px;
+    right: 10px;
+    content: '🌺';
 }
 
 /* 页脚 */
@@ -873,6 +1373,9 @@ body {
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .hero-subtitle {
@@ -904,6 +1407,9 @@ body {
     .love-date {
         font-size: 1rem;
         padding: 0 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .nav-container {
@@ -935,21 +1441,140 @@ body {
         padding: 0 1rem;
     }
 
+    /* 移动端时间轴 */
+    .timeline {
+        padding: 3rem 0;
+    }
+
     .timeline::before {
-        left: 20px;
+        background-size: 600px auto;
     }
 
     .timeline-item {
-        flex-direction: row !important;
-        padding-left: 50px;
+        margin-bottom: 5rem;
+        padding-left: 5% !important;
+        padding-right: 5% !important;
+    }
+
+    .timeline-image-container {
+        width: 120px;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-photo-frame {
+        width: 120px !important;
+        height: 120px !important;
+    }
+
+    .timeline-item:nth-child(even) .timeline-image-container {
+        width: 90px;
+        padding: 6px 6px 20px 6px;
+    }
+
+    .timeline-flag {
+        font-size: 0.85rem;
+        padding: 5px 20px 5px 10px;
+        min-width: 120px;
+    }
+    
+    .timeline-flag-date {
+        font-size: 0.8rem;
+    }
+    
+    .timeline-flag-title {
+        font-size: 0.9rem;
     }
 
     .timeline-content {
-        width: 100%;
+        max-width: 220px;
+        padding: 0.8rem 1rem;
+        top: 240px;
+    }
+    
+    .timeline-decorations {
+        left: -50px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .timeline-decorations::before {
+        font-size: 1.5rem;
+    }
+    
+    .timeline-badge {
+        top: -50px;
+        font-size: 2rem;
     }
 
-    .timeline-dot {
-        left: 20px;
+    .timeline-date {
+        font-size: 0.7rem;
+    }
+
+    .timeline-title {
+        font-size: 0.85rem;
+    }
+
+    .timeline-desc {
+        font-size: 0.8rem;
+    }
+
+    .timeline-badge {
+        font-size: 1.5rem;
+        top: -6px;
+        right: -6px;
+    }
+
+    .timeline-decorations::before,
+    .timeline-decorations::after {
+        font-size: 1.2rem;
+    }
+
+    /* 移动端照片查看器 */
+    .photo-viewer-container {
+        max-width: 95vw;
+        max-height: 90vh;
+        padding: 2rem 1rem 1rem;
+        border-radius: 20px;
+    }
+
+    .viewer-decorations::before,
+    .viewer-decorations::after {
+        font-size: 2rem;
+    }
+
+    .viewer-close {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .viewer-images-scroll {
+        gap: 1rem;
+    }
+
+    .viewer-image-item img {
+        height: 300px;
+        max-width: 400px;
+    }
+
+    .viewer-images-scroll.single-image .viewer-image-item img {
+        height: 350px;
+        max-width: 90vw;
+    }
+
+    .viewer-image-item.enlarged img {
+        height: 70vh;
+        max-width: 95vw;
+    }
+
+    .viewer-caption {
+        font-size: 1.1rem;
+    }
+
+    .viewer-counter {
+        font-size: 0.8rem;
+        padding: 0.4rem 1rem;
     }
 
     .memories-grid,
@@ -987,16 +1612,5 @@ body {
     .add-btn {
         padding: 0.8rem 2rem;
         font-size: 1rem;
-    }
-
-    .viewer-close {
-        top: 1rem;
-        right: 1rem;
-        font-size: 2rem;
-    }
-
-    .viewer-caption {
-        font-size: 1rem;
-        bottom: 1rem;
     }
 }

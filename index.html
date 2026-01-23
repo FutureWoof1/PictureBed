@@ -122,11 +122,56 @@
                 <div class="form-group">
                     <label>心情（可选）</label>
                     <select id="memoryMood">
+                        <!-- 正面情绪 -->
                         <option value="😊">😊 开心</option>
                         <option value="😍">😍 甜蜜</option>
                         <option value="🥰">🥰 幸福</option>
                         <option value="😘">😘 浪漫</option>
                         <option value="🤗">🤗 温暖</option>
+                        
+                        <!-- 负面情绪 -->
+                        <option value="😭">😭 伤心</option>
+                        <option value="🥺">🥺 委屈</option>
+                        <option value="😤">😤 生气</option>
+                        
+                        <!-- 等待与思念 -->
+                        <option value="💭">💭 思念</option>
+                        <option value="🕐">🕐 等待</option>
+                        
+                        <!-- 身体状态 -->
+                        <option value="😴">😴 困倦</option>
+                        <option value="🤒">🤒 生病</option>
+                        
+                        <!-- 惊讶与恐惧 -->
+                        <option value="😮">😮 惊讶</option>
+                        <option value="😰">😰 焦虑</option>
+                        
+                        <!-- 害羞与感动 -->
+                        <option value="😳">😳 害羞</option>
+                        <option value="🥹">🥹 感动</option>
+                        
+                        <!-- 平静与思考 -->
+                        <option value="🤔">🤔 思考</option>
+                        <option value="😌">😌 平静</option>
+                        <option value="😑">😑 无聊</option>
+                        
+                        <!-- 得意与庆祝 -->
+                        <option value="😎">😎 酷</option>
+                        <option value="🥳">🥳 庆祝</option>
+                        <option value="🤪">🤪 搞怪</option>
+                        
+                        <!-- 爱心系列 -->
+                        <option value="❤️">❤️ 红心</option>
+                        <option value="💖">💖 闪亮爱心</option>
+                        <option value="💓">💓 心跳</option>
+                        <option value="💕">💕 两颗心</option>
+                        <option value="💔">💔 心碎</option>
+                        <option value="❤️‍🔥">❤️‍🔥 燃烧的心</option>
+                        <option value="❤️‍🩹">❤️‍🩹 治愈的心</option>
+                        
+                        <!-- 特殊符号 -->
+                        <option value="💌">💌 情书</option>
+                        <option value="💝">💝 礼物</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -181,11 +226,7 @@
     </div>
 
     <!-- 照片查看器 -->
-    <div class="photo-viewer" id="photoViewer">
-        <span class="viewer-close">&times;</span>
-        <img src="" alt="" id="viewerImage">
-        <p class="viewer-caption" id="viewerCaption"></p>
-    </div>
+    <div class="photo-viewer" id="photoViewer"></div>
 
     <!-- 页脚 -->
     <footer class="footer">

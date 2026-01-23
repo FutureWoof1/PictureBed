@@ -16,13 +16,12 @@ const CONFIG = {
 // 从 config.js 加载配置（如果存在）
 if (typeof window.OSS_CONFIG !== 'undefined' && window.OSS_CONFIG) {
     Object.assign(CONFIG.oss, window.OSS_CONFIG);
-    console.log('✅ OSS 配置已加载:', CONFIG.oss);
+    console.log('✅ 配置已加载');
 }
 
 // 从 LOVE_START_DATE 加载恋爱开始日期
 if (typeof window.LOVE_START_DATE !== 'undefined' && window.LOVE_START_DATE) {
     CONFIG.startDate = window.LOVE_START_DATE;
-    console.log('✅ 恋爱开始日期已加载:', CONFIG.startDate);
 }
 
 // 本地存储管理模块（支持 OSS 云端同步）
@@ -54,7 +53,6 @@ class StorageManager {
                 bucket: CONFIG.oss.bucket
             });
             this.syncEnabled = true;
-            console.log('✅ OSS 已配置，数据将自动同步到云端');
         }
     }
 
@@ -288,11 +286,18 @@ class ImageUploader {
     }
 
     async uploadImage(file) {
-        // 只使用 OSS 上传
-        if (!this.ossClient) {
-            throw new Error('OSS 未配置，无法上传图片');
+        // 优先使用 OSS 上传，如果失败则使用 Base64 备用方案
+        if (this.ossClient) {
+            try {
+                return await this.uploadToOSS(file);
+            } catch (error) {
+                console.warn('OSS 上传失败，使用 Base64 备用方案:', error);
+                return await this.convertToBase64(file);
+            }
         }
-        return await this.uploadToOSS(file);
+        // OSS 未配置，使用 Base64
+        console.log('OSS 未配置，使用 Base64 存储');
+        return await this.convertToBase64(file);
     }
 
     async uploadToOSS(file) {
@@ -302,8 +307,18 @@ class ImageUploader {
             return result.url;
         } catch (error) {
             console.error('OSS 上传失败:', error);
-            throw new Error('图片上传失败');
+            throw error;
         }
+    }
+
+    // Base64 备用方案
+    async convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
     }
 }
 
@@ -470,6 +485,15 @@ class UIManager {
         
         if (!container) return;
         
+        // 默认温馨图片（如果没有上传图片）
+        const defaultImages = [
+            'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400',
+            'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400',
+            'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400',
+            'https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=400',
+            'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400'
+        ];
+        
         // 合并所有事件
         const allEvents = [
             ...memories.map(m => ({
@@ -490,36 +514,89 @@ class UIManager {
         // 按日期排序
         allEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
         
-        container.innerHTML = allEvents.map(item => {
-            const hasPhotos = item.photos && item.photos.length > 0;
-            const photosHtml = hasPhotos ? `
+        container.innerHTML = allEvents.map((item, index) => {
+            // 获取第一张图片或使用默认图片
+            const mainImage = (item.photos && item.photos.length > 0) 
+                ? item.photos[0] 
+                : defaultImages[index % defaultImages.length];
+            
+            const hasMultiplePhotos = item.photos && item.photos.length > 1;
+            const photosHtml = hasMultiplePhotos ? `
                 <button class="timeline-toggle" data-id="${item.id}" data-type="${item.type}">
-                    <i class="fas fa-images"></i> 查看照片 (${item.photos.length})
+                    <i class="fas fa-images"></i> 更多照片 (${item.photos.length})
                 </button>
                 <div class="timeline-photos" id="timeline-photos-${item.type}-${item.id}" style="display: none;">
                     ${item.photos.map(url => `
-                        <img src="${url}" alt="照片" class="timeline-photo" onclick="window.uiManager.openPhotoViewer('${url}', '${this.escapeHtml(item.displayTitle)}')">
+                        <img src="${url}" alt="照片" class="timeline-photo" data-photos='${JSON.stringify(item.photos)}' data-index="${item.photos.indexOf(url)}" data-title="${this.escapeHtml(item.displayTitle)}">
                     `).join('')}
                 </div>
             ` : '';
             
             return `
                 <div class="timeline-item" data-id="${item.id}">
-                    <div class="timeline-content">
-                        <div class="timeline-badge">${item.displayIcon}</div>
+                    <div class="timeline-image-container">
+                        <div class="timeline-labels" data-content-id="content-${item.type}-${item.id}">
+                            <div class="timeline-decorations"></div>
+                            <div class="timeline-badge">${item.displayIcon}</div>
+                            <div class="timeline-flag timeline-flag-date">${this.formatDate(item.date)}</div>
+                            <div class="timeline-flag timeline-flag-title">${this.escapeHtml(item.displayTitle)}</div>
+                        </div>
+                        <div class="timeline-photo-frame" ${(item.photos && item.photos.length > 0) ? `data-has-photos="true"` : ''}>
+                            <img src="${mainImage}" alt="${this.escapeHtml(item.displayTitle)}" class="timeline-circle-image" data-photos='${JSON.stringify(item.photos || [])}' data-index="0" data-title="${this.escapeHtml(item.displayTitle)}">
+                        </div>
+                    </div>
+                    <div class="timeline-content" id="content-${item.type}-${item.id}">
                         <div class="timeline-date">${this.formatDate(item.date)}</div>
                         <h3 class="timeline-title">${this.escapeHtml(item.displayTitle)}</h3>
-                        <p class="timeline-desc">${this.escapeHtml(item.content)}</p>
+                        ${item.content ? `<p class="timeline-desc">${this.escapeHtml(item.content)}</p>` : ''}
                         ${photosHtml}
                     </div>
-                    <div class="timeline-dot"></div>
                 </div>
             `;
         }).join('');
 
+        // 绑定标签组点击事件（展开/收起内容）
+        container.querySelectorAll('.timeline-labels').forEach(labels => {
+            labels.addEventListener('click', (e) => {
+                const contentId = e.currentTarget.dataset.contentId;
+                const content = document.getElementById(contentId);
+                if (content) {
+                    content.classList.toggle('expanded');
+                }
+            });
+        });
+
+        // 绑定图片点击事件（只有有图片的才能打开照片查看器）
+        container.querySelectorAll('.timeline-photo-frame[data-has-photos="true"]').forEach(frame => {
+            const img = frame.querySelector('.timeline-circle-image');
+            if (img) {
+                frame.style.cursor = 'pointer';
+                img.style.cursor = 'pointer';
+                img.addEventListener('click', (e) => {
+                    const photos = JSON.parse(e.target.dataset.photos || '[]');
+                    if (photos.length > 0) {
+                        const index = parseInt(e.target.dataset.index || '0');
+                        const title = e.target.dataset.title || '';
+                        this.openPhotoViewer(photos, index, title);
+                    }
+                });
+            }
+        });
+
+        // 绑定照片点击事件
+        container.querySelectorAll('.timeline-photo').forEach(img => {
+            img.addEventListener('click', (e) => {
+                const photos = JSON.parse(e.currentTarget.dataset.photos || '[]');
+                const index = parseInt(e.currentTarget.dataset.index || '0');
+                const title = e.currentTarget.dataset.title || '';
+                this.openPhotoViewer(photos, index, title);
+            });
+        });
+
         // 绑定照片展开事件
         container.querySelectorAll('.timeline-toggle').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 阻止事件冒泡
                 const id = e.currentTarget.dataset.id;
                 const type = e.currentTarget.dataset.type;
                 const photosDiv = document.getElementById(`timeline-photos-${type}-${id}`);
@@ -527,7 +604,7 @@ class UIManager {
                     const isVisible = photosDiv.style.display !== 'none';
                     photosDiv.style.display = isVisible ? 'none' : 'grid';
                     e.currentTarget.innerHTML = isVisible 
-                        ? `<i class="fas fa-images"></i> 查看照片 (${photosDiv.querySelectorAll('img').length})`
+                        ? `<i class="fas fa-images"></i> 更多照片 (${photosDiv.querySelectorAll('img').length})`
                         : `<i class="fas fa-times"></i> 收起照片`;
                 }
             });
@@ -551,8 +628,8 @@ class UIManager {
                     <i class="fas fa-images"></i> 查看照片 (${memory.photos.length})
                 </button>
                 <div class="memory-photos" id="memory-photos-${memory.id}" style="display: none;">
-                    ${memory.photos.map(url => `
-                        <img src="${url}" alt="照片" class="memory-photo" onclick="window.uiManager.openPhotoViewer('${url}', '${this.escapeHtml(memory.title)}')">
+                    ${memory.photos.map((url, idx) => `
+                        <img src="${url}" alt="照片" class="memory-photo" data-photos='${JSON.stringify(memory.photos)}' data-index="${idx}" data-title="${this.escapeHtml(memory.title)}">
                     `).join('')}
                 </div>
             ` : '';
@@ -589,6 +666,16 @@ class UIManager {
             btn.addEventListener('click', (e) => {
                 const id = parseInt(e.currentTarget.dataset.id);
                 this.editMemory(id);
+            });
+        });
+
+        // 绑定照片点击事件
+        container.querySelectorAll('.memory-photo').forEach(img => {
+            img.addEventListener('click', (e) => {
+                const photos = JSON.parse(e.currentTarget.dataset.photos || '[]');
+                const index = parseInt(e.currentTarget.dataset.index || '0');
+                const title = e.currentTarget.dataset.title || '';
+                this.openPhotoViewer(photos, index, title);
             });
         });
 
@@ -723,8 +810,8 @@ class UIManager {
                     <i class="fas fa-images"></i> 查看照片 (${anniversary.photos.length})
                 </button>
                 <div class="anniversary-photos" id="anniversary-photos-${anniversary.id}" style="display: none;">
-                    ${anniversary.photos.map(url => `
-                        <img src="${url}" alt="照片" class="anniversary-photo" onclick="window.uiManager.openPhotoViewer('${url}', '${this.escapeHtml(anniversary.name)}')">
+                    ${anniversary.photos.map((url, idx) => `
+                        <img src="${url}" alt="照片" class="anniversary-photo" data-photos='${JSON.stringify(anniversary.photos)}' data-index="${idx}" data-title="${this.escapeHtml(anniversary.name)}">
                     `).join('')}
                 </div>
             ` : '';
@@ -760,6 +847,16 @@ class UIManager {
             btn.addEventListener('click', (e) => {
                 const id = parseInt(e.currentTarget.dataset.id);
                 this.editAnniversary(id);
+            });
+        });
+
+        // 绑定照片点击事件
+        container.querySelectorAll('.anniversary-photo').forEach(img => {
+            img.addEventListener('click', (e) => {
+                const photos = JSON.parse(e.currentTarget.dataset.photos || '[]');
+                const index = parseInt(e.currentTarget.dataset.index || '0');
+                const title = e.currentTarget.dataset.title || '';
+                this.openPhotoViewer(photos, index, title);
             });
         });
 
@@ -877,20 +974,116 @@ class UIManager {
         }
     }
 
-    // 照片查看器
-    openPhotoViewer(src, caption) {
+    // 照片查看器 - 支持多图横向滚动
+    openPhotoViewer(photos, startIndex = 0, caption = '') {
         const viewer = document.getElementById('photoViewer');
-        const img = document.getElementById('viewerImage');
-        const captionEl = document.getElementById('viewerCaption');
+        if (!viewer) return;
 
-        img.src = src;
-        captionEl.textContent = caption;
+        // 确保photos是数组
+        const photoArray = Array.isArray(photos) ? photos : [photos];
+        const isSingleImage = photoArray.length === 1;
+
+        // 创建新的查看器HTML
+        viewer.innerHTML = `
+            <div class="photo-viewer-container">
+                <div class="viewer-decorations">
+                    <span class="viewer-corner-decor top-left">🌸</span>
+                    <span class="viewer-corner-decor top-right">🌿</span>
+                    <span class="viewer-corner-decor bottom-left">💐</span>
+                    <span class="viewer-corner-decor bottom-right">🌺</span>
+                </div>
+                <button class="viewer-close">&times;</button>
+                ${photoArray.length > 1 ? `<div class="viewer-counter">${startIndex + 1} / ${photoArray.length}</div>` : ''}
+                <div class="viewer-images-scroll ${isSingleImage ? 'single-image' : ''}">
+                    ${photoArray.map((url, index) => `
+                        <div class="viewer-image-item" data-index="${index}">
+                            <img src="${url}" alt="照片 ${index + 1}">
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="viewer-caption">${this.escapeHtml(caption)}</div>
+            </div>
+        `;
+
         viewer.classList.add('active');
+
+        // 滚动到指定图片
+        const scrollContainer = viewer.querySelector('.viewer-images-scroll');
+        const targetImage = viewer.querySelector(`.viewer-image-item[data-index="${startIndex}"]`);
+        if (targetImage && scrollContainer) {
+            setTimeout(() => {
+                targetImage.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }, 100);
+        }
+
+        // 绑定关闭事件
+        const closeBtn = viewer.querySelector('.viewer-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closePhotoViewer());
+        }
+
+        // 点击背景关闭
+        viewer.addEventListener('click', (e) => {
+            if (e.target === viewer) {
+                this.closePhotoViewer();
+            }
+        });
+
+        // 绑定图片点击放大事件
+        viewer.querySelectorAll('.viewer-image-item').forEach((item, index) => {
+            item.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG') {
+                    // 切换放大状态
+                    const isEnlarged = item.classList.contains('enlarged');
+                    
+                    // 移除其他图片的放大状态
+                    viewer.querySelectorAll('.viewer-image-item').forEach(i => i.classList.remove('enlarged'));
+                    
+                    if (!isEnlarged) {
+                        item.classList.add('enlarged');
+                        // 更新计数器
+                        const counter = viewer.querySelector('.viewer-counter');
+                        if (counter) {
+                            counter.textContent = `${index + 1} / ${photoArray.length}`;
+                        }
+                    }
+                }
+            });
+        });
+
+        // 滚动时更新计数器
+        if (scrollContainer && photoArray.length > 1) {
+            scrollContainer.addEventListener('scroll', () => {
+                const items = viewer.querySelectorAll('.viewer-image-item');
+                const scrollLeft = scrollContainer.scrollLeft;
+                const containerWidth = scrollContainer.offsetWidth;
+                
+                items.forEach((item, index) => {
+                    const itemLeft = item.offsetLeft;
+                    const itemWidth = item.offsetWidth;
+                    const itemCenter = itemLeft + itemWidth / 2;
+                    const viewCenter = scrollLeft + containerWidth / 2;
+                    
+                    if (Math.abs(itemCenter - viewCenter) < itemWidth / 2) {
+                        const counter = viewer.querySelector('.viewer-counter');
+                        if (counter) {
+                            counter.textContent = `${index + 1} / ${photoArray.length}`;
+                        }
+                    }
+                });
+            });
+        }
     }
 
     closePhotoViewer() {
         const viewer = document.getElementById('photoViewer');
-        viewer.classList.remove('active');
+        if (viewer) {
+            viewer.classList.remove('active');
+            // 清空内容
+            setTimeout(() => {
+                viewer.innerHTML = '';
+            }, 300);
+        }
     }
 
     // 工具函数
@@ -1199,11 +1392,6 @@ class App {
 
 // 启动应用
 function startApp() {
-    console.log('🚀 启动应用...');
-    console.log('📝 配置信息:', {
-        ossConfig: window.OSS_CONFIG,
-        loveStartDate: window.LOVE_START_DATE
-    });
     new App();
 }
 
