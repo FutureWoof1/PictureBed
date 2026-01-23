@@ -1792,29 +1792,31 @@ body::after {
         padding: 3rem 0;               /* 从6rem 0缩小到3rem 0 */
     }
 
-    /* S曲线 - 保持正常显示，不压缩 */
+    /* S曲线 - 按比例缩小到600px（宽度和高度都缩小0.6倍） */
     .timeline::before {
-        background-size: 1000px auto;  /* 保持1000px，与PC端一致，不压缩S曲线 */
+        /* 使用缩小版SVG：宽度600px，半径120px，每个弧高度240px */
+        background-image: url("data:image/svg+xml,%3Csvg width='600' height='100%25' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMin slice'%3E%3Cpath d='M 300 0 A 120 120 0 1 0 300 240 A 120 120 0 1 1 300 480 A 120 120 0 1 0 300 720 A 120 120 0 1 1 300 960 A 120 120 0 1 0 300 1200 A 120 120 0 1 1 300 1440 A 120 120 0 1 0 300 1680 A 120 120 0 1 1 300 1920 A 120 120 0 1 0 300 2160 A 120 120 0 1 1 300 2400' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' opacity='0.9' filter='drop-shadow(0 2px 4px rgba(255,182,193,0.4))'/%3E%3C/svg%3E");
+        background-size: 600px auto;  /* 宽度600px，高度自适应 */
     }
 
-    /* 时间轴事件项 - 保持高度对应弧度，调整嵌入位置 */
+    /* 时间轴事件项 - 按比例缩小高度，对应600px宽度的弧度（240px高度） */
     .timeline-item {
-        height: 400px;                 /* 保持400px，对应一个完整的3/4圆弧 */
-        margin-bottom: 0;              /* 保持无间距 */
+        height: 240px;                 /* 按比例缩小：400px × 0.6 = 240px，对应一个完整的3/4圆弧 */
+        margin-bottom: 0;              /* 保持无间距，弧度连续 */
     }
     
-    /* 奇数项：嵌入左侧弧内 */
+    /* 奇数项：嵌入左侧弧内 - 完美嵌入240px高度的弧度 */
     .timeline-item:nth-child(odd) {
-        padding-left: 15% !important;  /* 嵌入左侧弧内 */
+        padding-left: 40% !important;  /* 嵌入深度，使图片位于弧内侧 */
         padding-right: 0 !important;
-        padding-bottom: 20% !important; /* 调整垂直位置 */
+        padding-bottom: 18% !important; /* 垂直居中在弧内 */
     }
     
-    /* 偶数项：嵌入右侧弧内 */
+    /* 偶数项：嵌入右侧弧内 - 完美嵌入240px高度的弧度 */
     .timeline-item:nth-child(even) {
-        padding-right: 15% !important; /* 嵌入右侧弧内 */
+        padding-right: 40% !important; /* 嵌入深度，使图片位于弧内侧 */
         padding-left: 0 !important;
-        padding-bottom: 20% !important; /* 调整垂直位置 */
+        padding-bottom: 18% !important; /* 垂直居中在弧内 */
     }
 
     /* 图片容器 - 保持水平布局 */
@@ -1825,20 +1827,20 @@ body::after {
         align-items: center;           /* 垂直居中 */
     }
 
-    /* 圆形图片框 - 统一尺寸（奇数项和偶数项） */
+    /* 圆形图片框 - 按比例缩小（奇数项和偶数项） */
     .timeline-item:nth-child(odd) .timeline-photo-frame,
     .timeline-item:nth-child(even) .timeline-photo-frame {
-        width: 100px !important;       /* 统一缩小到100px */
-        height: 100px !important;      /* 统一缩小到100px */
-        padding: 6px;                  /* 统一边框宽度 */
+        width: 140px !important;        /* 按比例缩小，适配240px高度的弧度 */
+        height: 140px !important;       /* 按比例缩小，适配240px高度的弧度 */
+        padding: 4px;                  /* 统一边框宽度 */
     }
 
-    /* 标签 - 缩小字体和尺寸 */
+    /* 标签 - 按比例缩小字体和尺寸 */
     .timeline-flag {
-        font-size: 0.7rem;             /* 从1rem缩小到0.7rem */
-        padding: 4px 14px 4px 6px;     /* 缩小内边距 */
-        min-width: 80px;               /* 从140px缩小到80px */
-        max-width: 120px;              /* 限制最大宽度 */
+        font-size: 1.5rem;             /* 按比例缩小字体 */
+        padding: 2px 10px 2px 4px;     /* 按比例缩小内边距 */
+        min-width: 120px;               /* 按比例缩小最小宽度 */
+        max-width: 250px;               /* 按比例限制最大宽度 */
         white-space: nowrap;           /* 不换行 */
         overflow: hidden;              /* 隐藏溢出 */
         text-overflow: ellipsis;       /* 显示省略号 */
@@ -1846,31 +1848,31 @@ body::after {
     
     /* 奇数项标签 - 燕尾朝右 */
     .timeline-item:nth-child(odd) .timeline-flag {
-        padding: 4px 14px 4px 6px;     /* 右侧留白 */
+        padding: 2px 10px 2px 4px;     /* 右侧留白 */
     }
     
     /* 偶数项标签 - 燕尾朝左 */
     .timeline-item:nth-child(even) .timeline-flag {
-        padding: 4px 6px 4px 14px;     /* 左侧留白 */
+        padding: 2px 4px 2px 10px;     /* 左侧留白 */
     }
     
-    /* 日期标签 - 缩小字体 */
+    /* 日期标签 - 按比例缩小字体 */
     .timeline-flag-date {
-        font-size: 0.65rem;            /* 从0.95rem缩小到0.65rem */
+        font-size: 1rem;            /* 按比例缩小 */
     }
     
-    /* 标题标签 - 缩小字体 */
+    /* 标题标签 - 按比例缩小字体 */
     .timeline-flag-title {
-        font-size: 0.75rem;            /* 从1.1rem缩小到0.75rem */
+        font-size: 1rem;            /* 按比例缩小 */
     }
     
-    /* 移动端标签不倾斜 */
-    .timeline-item:nth-child(odd) .timeline-flag-date,
-    .timeline-item:nth-child(odd) .timeline-flag-title,
-    .timeline-item:nth-child(even) .timeline-flag-date,
-    .timeline-item:nth-child(even) .timeline-flag-title {
-        transform: rotate(0deg) !important;  /* 移除倾斜 */
-    }
+    /*!* 移动端标签不倾斜 *!*/
+    /*.timeline-item:nth-child(odd) .timeline-flag-date,*/
+    /*.timeline-item:nth-child(odd) .timeline-flag-title,*/
+    /*.timeline-item:nth-child(even) .timeline-flag-date,*/
+    /*.timeline-item:nth-child(even) .timeline-flag-title {*/
+    /*    transform: rotate(0deg) !important;  !* 移除倾斜 *!*/
+    /*}*/
 
     /* 内容区域 - 移动端隐藏（节省空间） */
     .timeline-content {
@@ -1879,21 +1881,21 @@ body::after {
     
     /* 装饰元素已移除 */
     
-    /* 表情徽章 - 调整到图片上角 */
+    /* 表情徽章 - 按比例缩小 */
     .timeline-badge {
-        top: -6px;                     /* 图片上角 */
-        font-size: 1.5rem;             /* 从2.5rem缩小到1.5rem */
+        top: -5px;                     /* 图片上角 */
+        font-size: 1.1rem;             /* 按比例缩小，适配70px图片框 */
         z-index: 10;                   /* 确保在最上层 */
     }
     
     /* 奇数项：表情在左上角 */
     .timeline-item:nth-child(odd) .timeline-badge {
-        left: -6px;                    /* 左上角 */
+        left: -5px;                    /* 左上角 */
     }
     
     /* 偶数项：表情在右上角 */
     .timeline-item:nth-child(even) .timeline-badge {
-        right: -6px;                   /* 右上角 */
+        right: -5px;                   /* 右上角 */
         left: auto;                    /* 取消左侧定位 */
     }
 
