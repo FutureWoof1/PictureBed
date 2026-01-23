@@ -4,7 +4,7 @@
 
 /* 导入手写字体 - 中文手写字体（Ma Shan Zheng、ZCOOL XiaoWei、Long Cang） */
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Long+Cang&display=swap');
-
+/*@import url('https://fonts.googleapis.com/css2?family=Long+Cang');*/
 /* 重置所有元素的默认样式 */
 * {
     margin: 0;
@@ -45,7 +45,7 @@
    ============================================ */
 body {
     /* 字体：优先使用中文手写字体 */
-    font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'Long Cang', cursive, sans-serif;
+    /*font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'Long Cang', cursive, sans-serif;*/
     
     /* 文字颜色 */
     color: var(--text-dark);
@@ -66,6 +66,8 @@ body {
     line-height: 1.6;    /* 行高 */
     position: relative;
 }
+
+
 
 /* ============================================
    Kawaii 背景装饰 - 云朵、星星、爱心
@@ -1813,16 +1815,18 @@ body::after {
     
     /* 奇数项：嵌入左侧弧内 - 完美嵌入240px高度的弧度 */
     .timeline-item:nth-child(odd) {
-        padding-left: 25% !important;  /* 嵌入深度，使图片位于弧内侧 */
+        /*padding-left: 25% !important;  !* 嵌入深度，使图片位于弧内侧 *!*/
+        padding-left: calc(50%  - 100px) !important;  /* 相对于S曲线左边缘（中心-300px）向右偏移60px */
         padding-right: 0 !important;
         padding-bottom: 18% !important; /* 垂直居中在弧内 */
     }
     
     /* 偶数项：嵌入右侧弧内 - 完美嵌入240px高度的弧度 */
     .timeline-item:nth-child(even) {
-        padding-right: 25% !important; /* 嵌入深度，使图片位于弧内侧 */
+        padding-right: calc(50%  - 100px) !important; /* 嵌入深度，使图片位于弧内侧 */
         padding-left: 0 !important;
         padding-bottom: 18% !important; /* 垂直居中在弧内 */
+        /*padding-bottom: calc(50%  - 160px) !important; !* 垂直居中在弧内 *!*/
     }
 
     /* 图片容器 - 保持水平布局 */
