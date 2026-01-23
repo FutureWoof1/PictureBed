@@ -10,7 +10,9 @@ const CONFIG = {
         dataFile: 'PictureBed/data.json'  // 数据文件路径
     },
     // 恋爱开始日期
-    startDate: '2022-10-15'
+    startDate: '2022-10-15',
+    // 编辑密码（可在 config.js 中配置）
+    editPassword: 'love2022'  // 默认密码，建议在 config.js 中修改
 };
 
 // 从 config.js 加载配置（如果存在）
@@ -22,6 +24,134 @@ if (typeof window.OSS_CONFIG !== 'undefined' && window.OSS_CONFIG) {
 // 从 LOVE_START_DATE 加载恋爱开始日期
 if (typeof window.LOVE_START_DATE !== 'undefined' && window.LOVE_START_DATE) {
     CONFIG.startDate = window.LOVE_START_DATE;
+}
+
+// 从 EDIT_PASSWORD 加载编辑密码
+if (typeof window.EDIT_PASSWORD !== 'undefined' && window.EDIT_PASSWORD) {
+    CONFIG.editPassword = window.EDIT_PASSWORD;
+}
+
+// 认证管理模块
+class AuthManager {
+    constructor() {
+        this.SESSION_KEY = 'sweet_album_auth';
+        this.isAuthenticated = false;
+        this.checkAuth();
+    }
+
+    // 检查认证状态
+    checkAuth() {
+        const authData = sessionStorage.getItem(this.SESSION_KEY);
+        if (authData) {
+            try {
+                const data = JSON.parse(authData);
+                // 检查是否在同一会话中（1小时内有效）
+                const now = Date.now();
+                if (now - data.timestamp < 3600000) { // 1小时 = 3600000毫秒
+                    this.isAuthenticated = true;
+                    this.setEditMode();
+                    return true;
+                }
+            } catch (error) {
+                console.error('认证数据解析失败:', error);
+            }
+        }
+        this.setReadonlyMode();
+        return false;
+    }
+
+    // 验证密码
+    authenticate(password) {
+        if (password === CONFIG.editPassword) {
+            this.isAuthenticated = true;
+            // 保存认证状态到会话存储
+            sessionStorage.setItem(this.SESSION_KEY, JSON.stringify({
+                authenticated: true,
+                timestamp: Date.now()
+            }));
+            this.setEditMode();
+            return true;
+        }
+        return false;
+    }
+
+    // 退出登录
+    logout() {
+        this.isAuthenticated = false;
+        sessionStorage.removeItem(this.SESSION_KEY);
+        this.setReadonlyMode();
+    }
+
+    // 设置只读模式
+    setReadonlyMode() {
+        document.body.classList.add('readonly-mode');
+        this.showReadonlyNotice();
+    }
+
+    // 设置编辑模式
+    setEditMode() {
+        document.body.classList.remove('readonly-mode');
+        this.removeReadonlyNotice();
+    }
+
+    // 显示只读模式提示
+    showReadonlyNotice() {
+        // 移除已存在的提示
+        this.removeReadonlyNotice();
+        
+        const notice = document.createElement('div');
+        notice.className = 'readonly-notice';
+        notice.id = 'readonlyNotice';
+        notice.innerHTML = `
+            <i class="fas fa-eye"></i>
+            <span>只读模式</span>
+            <button id="loginBtn">登录编辑</button>
+        `;
+        document.body.appendChild(notice);
+
+        // 绑定登录按钮事件
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            this.showAuthModal();
+        });
+    }
+
+    // 移除只读模式提示
+    removeReadonlyNotice() {
+        const notice = document.getElementById('readonlyNotice');
+        if (notice) {
+            notice.remove();
+        }
+    }
+
+    // 显示认证模态框
+    showAuthModal() {
+        const modal = document.getElementById('authModal');
+        if (modal) {
+            modal.classList.add('active');
+            document.getElementById('authPassword').focus();
+        }
+    }
+
+    // 关闭认证模态框
+    closeAuthModal() {
+        const modal = document.getElementById('authModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authError').style.display = 'none';
+        }
+    }
+
+    // 显示错误信息
+    showError() {
+        const errorDiv = document.getElementById('authError');
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+    }
 }
 
 // 本地存储管理模块（支持 OSS 云端同步）
@@ -1126,6 +1256,7 @@ class UIManager {
 // 初始化应用
 class App {
     constructor() {
+        this.auth = new AuthManager();
         this.storage = new StorageManager();
         this.uploader = new ImageUploader();
         this.ui = new UIManager(this.storage, this.uploader);
@@ -1245,6 +1376,39 @@ class App {
                 }
             });
         }
+
+        // 认证表单事件
+        const authForm = document.getElementById('authForm');
+        if (authForm) {
+            authForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const password = document.getElementById('authPassword').value;
+                if (this.auth.authenticate(password)) {
+                    this.auth.closeAuthModal();
+                    alert('✅ 验证成功！现在可以编辑内容了');
+                } else {
+                    this.auth.showError();
+                }
+            });
+        }
+
+        // 认证取消按钮
+        const authCancelBtn = document.getElementById('authCancelBtn');
+        if (authCancelBtn) {
+            authCancelBtn.addEventListener('click', () => {
+                this.auth.closeAuthModal();
+            });
+        }
+
+        // 点击模态框背景关闭认证框
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.addEventListener('click', (e) => {
+                if (e.target === authModal) {
+                    this.auth.closeAuthModal();
+                }
+            });
+        }
     }
 
     initNavigation() {
@@ -1300,6 +1464,11 @@ class App {
                 <button id="importDataBtn" style="margin: 5px; padding: 8px 16px; background: #FF69B4; color: white; border: none; border-radius: 5px; cursor: pointer;">
                     <i class="fas fa-upload"></i> 导入数据
                 </button>
+                ${this.auth.isAuthenticated ? `
+                <button id="logoutBtn" style="margin: 5px; padding: 8px 16px; background: #FF6B6B; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                </button>
+                ` : ''}
                 <input type="file" id="importDataFile" accept=".json" style="display: none;">
             `;
             footer.insertBefore(dataManageDiv, footer.firstChild);
@@ -1364,6 +1533,17 @@ class App {
                     reader.readAsText(file);
                 }
             });
+
+            // 退出登录
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    if (confirm('确定要退出登录吗？')) {
+                        this.auth.logout();
+                        alert('已退出登录，现在是只读模式');
+                    }
+                });
+            }
         }
     }
 

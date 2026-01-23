@@ -37,16 +37,18 @@ jobs:
               bucket: '${{ secrets.OSS_BUCKET }}',
               uploadDir: '${{ secrets.OSS_UPLOAD_DIR || 'PictureBed/' }}',
               dataFile: '${{ secrets.OSS_DATA_FILE || 'PictureBed/data.json' }}'
+            
           };
 
           // 恋爱开始日期配置
           window.LOVE_START_DATE = '${{ secrets.LOVE_START_DATE || '2022-10-15' }}';
+          window.EDIT_PASSWORD = '${{ secrets.EDIT_PASSWORD }}';
           
           console.log('✅ 配置已加载');
           EOF
           
           echo "✅ 配置文件已生成"
-          
+
       - name: 验证配置
         run: |
           if [ ! -f "config.public.js" ]; then

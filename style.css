@@ -1699,6 +1699,71 @@ body::after {
 }
 
 /* ============================================
+   只读模式样式 - 隐藏所有编辑功能
+   ============================================ */
+
+/* 只读模式：隐藏所有添加、编辑、删除按钮 */
+body.readonly-mode .add-btn,
+body.readonly-mode .memory-edit,
+body.readonly-mode .memory-delete,
+body.readonly-mode .anniversary-edit,
+body.readonly-mode .anniversary-delete,
+body.readonly-mode #refreshDataBtn,
+body.readonly-mode #exportDataBtn,
+body.readonly-mode #importDataBtn {
+    display: none !important;
+}
+
+/* 只读模式提示 */
+.readonly-notice {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    padding: 10px 20px;
+    background: rgba(255, 152, 0, 0.9);
+    color: white;
+    border-radius: 25px;
+    font-size: 14px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    animation: slideInRight 0.5s ease;
+}
+
+.readonly-notice i {
+    font-size: 16px;
+}
+
+.readonly-notice button {
+    background: white;
+    color: #ff9800;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.readonly-notice button:hover {
+    background: #fff3e0;
+    transform: scale(1.05);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
    响应式设计 - 移动端适配（屏幕宽度 ≤ 768px）
    ============================================ */
 

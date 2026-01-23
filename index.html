@@ -26,6 +26,7 @@
             dataFile: 'PictureBed/data.json'
         };
         window.LOVE_START_DATE = window.LOVE_START_DATE || '2022-10-15';
+        window.EDIT_PASSWORD = window.EDIT_PASSWORD || 'love2022';  // 默认编辑密码
     </script>
     <!-- 优先加载 config.public.js（用于 GitHub 部署），如果不存在则加载 config.js（本地开发） -->
     <script src="config.public.js" onerror="this.onerror=null; this.src='config.js'; console.log('使用 config.js')"></script>
@@ -232,6 +233,23 @@
 
     <!-- 照片查看器 -->
     <div class="photo-viewer" id="photoViewer"></div>
+
+    <!-- 安全验证模态框 -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <h3 class="modal-title">🔐 安全验证</h3>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">请输入密码以进入编辑模式</p>
+            <form id="authForm">
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="authPassword" placeholder="请输入密码" required>
+                </div>
+                <div id="authError" style="color: #ff4444; text-align: center; margin-bottom: 10px; display: none;">密码错误，请重试</div>
+                <button type="submit" class="submit-btn">验证</button>
+                <button type="button" class="submit-btn" id="authCancelBtn" style="background: #999; margin-top: 10px;">取消</button>
+            </form>
+        </div>
+    </div>
 
     <!-- 页脚 -->
     <footer class="footer">
